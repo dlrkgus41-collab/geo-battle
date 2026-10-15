@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    // 아래 이메일을 Firebase Authentication에서 생성한 관리자 이메일로 바꾸세요.
+    // 이메일/비밀번호 방식으로 로그인한 관리자만 상세 익명 응답을 읽습니다.
+    function isAdmin() {
+      return signedIn() && request.auth.token.email == 'REPLACE_WITH_ADMIN_EMAIL@example.com'
+        && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+    function member(roomId) {
+      return signedIn() &&
+        request.auth.uid in get(/databases/$(database)/documents/rooms/$(roomId)).data.members;
+    }
+    // 익명 로그인한 참가자도 통계에 참여합니다. 공개 대시보드용 집계입니다.
+    // 별도 신뢰 서버가 없으므로 악의적인 통계 조작을 완전히 방지하지는 못합니다.
+    match /stats/{day} {
+      allow read: if signedIn();
+      allow create, update: if signedIn()
+        && day.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+        && request.resource.data.keys().hasOnly(['visitors','battles','practices','answers','correct','wrongCount']);
+      match /events/{eventId} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.resource.data.uid == request.auth.uid
+          && request.resource.data.keys().hasOnly(['uid','type','createdAt'])
+          && request.resource.data.type in ['visit','battle','practice','answer'];
+        allow update, delete: if false;
+      }
+      match /responses/{responseId} {
+        // 학생의 선택/정답만 보관. 닉네임, 이메일, UID, 방 코드는 저장하지 않습니다.
+        allow get, list: if isAdmin();
+        allow create: if signedIn()
+          && responseId.matches('[a-f0-9]{64}')
+          && request.resource.data.keys().hasOnly(['target','choice','mode','correct','createdAt'])
+          && request.resource.data.target is string
+          && request.resource.data.choice is string
+          && request.resource.data.target.size() > 0
+          && request.resource.data.target.size() <= 100
+          && request.resource.data.choice.size() > 0
+          && request.resource.data.choice.size() <= 100
+          && request.resource.data.mode in ['practice','battle']
+          && request.resource.data.correct == (request.resource.data.target == request.resource.data.choice)
+          && request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
+      match /countries/{country} {
+        allow read: if signedIn();
+        allow create, update: if signedIn()
+          && request.resource.data.keys().hasOnly(['total','wrong'])
+          && request.resource.data.total is int && request.resource.data.wrong is int
+          && request.resource.data.total >= 0 && request.resource.data.wrong >= 0;
+        allow delete: if false;
+      }
+    }
+    match /rooms/{roomId} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && roomId.matches('[0-9]{4}')
+        && request.resource.data.hostUid == request.auth.uid
+        && request.resource.data.members == [request.auth.uid]
+        && request.resource.data.phase == 'waiting';
+      // Classroom testing: members manage the shared room; a joining user
+      // may append only their own UID while the room is waiting.
+      allow update: if signedIn() && (
+        request.auth.uid in resource.data.members ||
+        (resource.data.phase == 'waiting'
+          && resource.data.startAt == 0
+          && !(request.auth.uid in resource.data.members)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
+          && request.resource.data.members == resource.data.members.concat([request.auth.uid]))
+      );
+      allow delete: if signedIn()
+        && request.auth.uid in resource.data.members
+        && resource.data.members.size() == 1;
+      match /players/{playerId} {
+        // Player creation and room membership are written in one transaction.
+        // Do not require getAfter(room): that condition caused rule evaluation
+        // problems on some simultaneous room-join flows.
+        allow create: if signedIn() && playerId == request.auth.uid;
+        allow get: if signedIn() && (playerId == request.auth.uid || member(roomId));
+        allow list: if member(roomId);
+        allow update, delete: if signedIn() &&
+          (playerId == request.auth.uid ||
+           request.auth.uid == get(/databases/$(database)/documents/rooms/$(roomId)).data.hostUid);
+      }
+      match /answers/{answerId} {
+        allow read: if member(roomId);
+        allow create: if member(roomId)
+          && request.resource.data.uid == request.auth.uid;
+      }
+    }
+  }
+}
