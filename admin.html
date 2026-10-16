@@ -28,7 +28,7 @@ async function load(){if(busy||!auth.currentUser)return;busy=true;$('refresh').d
  try{const dates=datesFor(Number($('period').value));const totals={visitors:0,battles:0,practices:0,answers:0,correct:0,wrongCount:0};const countries=new Map(),confusions=new Map(),modes=new Map();const dailyRows=[];let detailed=0;
  // 제한된 날짜 범위만 읽어 불필요한 전체 데이터 스캔을 피합니다.
  for(const day of dates){const [summary,countrySnap,responseSnap]=await Promise.all([getDoc(doc(db,'stats',day)),getDocs(collection(db,'stats',day,'countries')),getDocs(collection(db,'stats',day,'responses'))]);const data=summary.data()||{};
-  for(const k of Object.keys(totals))totals[k]+=Number(data[k]||0);dailyRows.push({day,...data});
+  for(const k of Object.keys(totals))totals[k]+=Number(k==='visitors'?(data.visitorsV2||0):(data[k]||0));dailyRows.push({day,...data,visitors:data.visitorsV2||0});
   countrySnap.forEach(d=>{const c=countries.get(d.id)||{total:0,wrong:0};c.total+=Number(d.data().total||0);c.wrong+=Number(d.data().wrong||0);countries.set(d.id,c)});
   responseSnap.forEach(d=>{const r=d.data();if(!r.target||!r.choice)return;detailed++;const m=modes.get(r.mode)||{total:0,correct:0};m.total++;if(r.correct)m.correct++;modes.set(r.mode,m);if(!r.correct){const key=JSON.stringify([r.target,r.choice]);confusions.set(key,(confusions.get(key)||0)+1)}});
  }
