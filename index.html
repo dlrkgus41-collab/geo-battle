@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><title>GEO BATTLE v1.2.0 · 멀티룸</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><title>GEO BATTLE v1.2.1 · 멀티룸</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}body{margin:0;padding:18px;background:linear-gradient(140deg,#f4eaff,#fdf6ff 55%,#e8f3ff);color:#443658;font-family:'Nunito','Malgun Gothic',sans-serif;min-height:100vh}main{max-width:1060px;margin:auto}h1,h2,h3,button,.tag{font-family:'Jua','Malgun Gothic',sans-serif;font-weight:400}h1{font-size:2.5rem;color:#7858b3;margin:14px 0 0}.sub{color:#8d78a6;margin:0 0 20px}.panel{background:rgba(255,255,255,.95);border:2px solid #e6d8fa;box-shadow:0 8px 24px #8e70bd1a;border-radius:24px;padding:22px;margin:15px 0}button,input,select{font:inherit;border-radius:13px;border:2px solid #e2d6f3;padding:11px;color:#443658;background:#fff}button{background:#e9d8ff;border-color:#d5bdf9;cursor:pointer;font-size:1.08rem}button:hover:not(:disabled){background:#d9baff}button:disabled{opacity:.5;cursor:not-allowed}button.primary{background:#9c7bdc;color:white;border-color:#9c7bdc}button.primary:hover{background:#8b68cf}input{max-width:220px}select{max-width:220px}.muted,small{color:#8e7b9d}.hide{display:none!important}.tag{display:inline-block;border-radius:20px;background:#f1e6ff;color:#7d5eb1;padding:7px 13px}.layout{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.mapwrap{background:#e9f3ff;border:3px solid #d5dff5;border-radius:18px;overflow:hidden}#map{width:100%;height:auto;display:block;aspect-ratio:900/480}#map path{stroke:#9da8b8;stroke-width:.75;fill:white;vector-effect:non-scaling-stroke}.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.choices button{min-height:64px;background:#f2eaff}.choices button.correct{background:#c7f4dd;border-color:#5fc58c}.choices button.wrong{background:#ffe0e7;border-color:#ef91aa}.phase{font-size:1.3rem;color:#8d66c4}.time{font-family:'Jua';font-size:2rem;color:#865bd0}.answer{font-family:'Jua';font-size:1.55rem;color:#5b4a8b;padding:10px 0}.qr{display:flex;gap:18px;align-items:center;flex-wrap:wrap}#qr{background:#fff;border:2px solid #e4d8f3;padding:10px;border-radius:14px;min-height:190px;min-width:190px}#qr img,#qr canvas{max-width:170px}a{color:#7853b9;overflow-wrap:anywhere}.error{color:#c23964}.leader{width:100%;border-collapse:collapse}.leader td,.leader th{padding:13px 8px;border-bottom:1px solid #eee3f7;text-align:left}.leader th{color:#866ca3}.leader tr:nth-child(1) td{background:#fff6d9}.leader tr.me td{font-weight:800}.pill{display:inline-block;background:#d8f3e7;padding:5px 10px;border-radius:12px}#feedback{min-height:28px}#practiceResult{font-size:1.3rem}.practiceDoneActions{margin:10px 0 20px}.helper{font-size:.9rem;color:#7e6d92}#scorePanel{margin-top:10px}@media(max-width:600px){body{padding:9px}.panel{padding:14px;border-radius:18px}.choices{gap:7px}.choices button{font-size:.95rem;min-height:58px}h1{font-size:2rem}}
@@ -78,8 +78,8 @@ body.playing .topNavigation{display:none}
 .growthColumn .growthBar{width:100%;max-width:45px;margin:auto;background:#9978da;border-radius:7px 7px 0 0;min-height:2px}
 .masterBadges{display:flex;flex-wrap:wrap;gap:8px}.masterBadge{padding:9px 11px;background:#f5edff;border-radius:12px;border:1px solid #e0d1f5;font-size:.86rem}
 .masterBadge.locked{opacity:.55;background:#f4f4f6}
-#progressMapSvg{display:block;width:100%;aspect-ratio:900/480;background:#eaf3ff;touch-action:pan-y}
-#progressMapSvg path{stroke:#a2acbf;stroke-width:.65;vector-effect:non-scaling-stroke;cursor:pointer}
+#progressMapSvg{display:block;width:100%;aspect-ratio:900/480;background:#eaf3ff;touch-action:none;user-select:none;cursor:grab}#progressMapSvg.dragging{cursor:grabbing}
+#progressMapSvg path{stroke:#a2acbf;stroke-width:.65;vector-effect:non-scaling-stroke;cursor:inherit;outline:none!important}#progressMapSvg .progressName{pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2px;stroke-linejoin:round;fill:#24324a;text-anchor:middle;dominant-baseline:central;font-weight:700}
 .mapLegend{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0;font-size:.82rem}.mapLegend span{display:inline-flex;align-items:center;gap:5px}.mapLegend i{display:inline-block;width:12px;height:12px;border-radius:3px}
 #progressMapPanel .atlasTools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
 .streakNotice{font-weight:800;color:#8d5bc1;text-align:center;margin:5px 0}
@@ -88,8 +88,8 @@ body.playing .topNavigation{display:none}
 .manualMapPalette button{display:inline-flex;align-items:center;gap:6px;border:2px solid #e4deec;background:#fff;color:#51445f;border-radius:11px;padding:8px 11px}
 .manualMapPalette button.selected{border-color:#7e4fc2;background:#f2eaff;font-weight:800}
 .manualMapPalette i{display:inline-block;width:15px;height:15px;border-radius:4px}
-#progressMapSvg path:focus-visible{outline:none;stroke:#5c3398;stroke-width:2}
-</style></head><body><main><div class="topNavigation"><h1 id="brandHome" title="홈으로 이동" role="button" tabindex="0" style="cursor:pointer">🌷 GEO BATTLE <small>v1.2.0</small></h1><a class="adminShortcut" href="./admin.html" aria-label="관리자 페이지로 이동">🔐 관리자</a></div><p class="sub">지도를 탐험하고, 함께 도전하는 우리들의 지리 퀴즈 ✨ <small class="creatorCredit">made by 가현T</small></p>
+#progressMapSvg path:focus-visible{outline:none;stroke:#a2acbf;stroke-width:.65}
+</style></head><body><main><div class="topNavigation"><h1 id="brandHome" title="홈으로 이동" role="button" tabindex="0" style="cursor:pointer">🌷 GEO BATTLE <small>v1.2.1</small></h1><a class="adminShortcut" href="./admin.html" aria-label="관리자 페이지로 이동">🔐 관리자</a></div><p class="sub">지도를 탐험하고, 함께 도전하는 우리들의 지리 퀴즈 ✨ <small class="creatorCredit">made by 가현T</small></p>
 <section class="panel" id="setup"><h2>어떤 모드로 시작할까요? 💜</h2><div class="layout"><label>닉네임 <input id="nick" maxlength="18" placeholder="닉네임 필수 입력" required></label><button class="primary" id="create">🎮 친구들과 대결방 만들기</button><button id="join">🔑 4자리 코드로 입장</button><button id="practice">🌼 혼자 연습하기</button><button id="atlasHome">🗺️ 백지도 공부하기</button><button id="progressMapHome">🎨 나의 세계지도 색칠하기</button><button id="dataMapHome">📊 나의 학습지도</button><button id="bookmarksHome">⭐ 내 북마크 <span id="bookmarkCount"></span></button></div><p id="notice" class="muted">연습은 바로 시작할 수 있어요. 실시간 대결은 Firebase 연결이 필요해요.</p></section>
 
 <section class="panel" id="dailyDashboard" aria-label="GEO BATTLE 통계">
@@ -142,7 +142,7 @@ body.playing .topNavigation{display:none}
 <button type="button" data-paint="unseen"><i style="background:#ffffff;border:1px solid #b9c1cc"></i> 미학습 (지우기)</button>
 </div>
 <div class="mapLegend"><span><i style="background:#74c6a4"></i> 아는 국가</span><span><i style="background:#f3c46b"></i> 연습 중</span><span><i style="background:#e98b94"></i> 헷갈리는 국가</span><span><i style="background:#ffffff;border:1px solid #b9c1cc"></i> 미학습</span></div>
-<div class="atlasTools"><label>빠른 이동 <select id="progressRegion"><option value="world">🌍 세계 전체</option><option value="asia">아시아</option><option value="europe">유럽</option><option value="africa">아프리카</option><option value="northamerica">북아메리카</option><option value="southamerica">남아메리카</option><option value="oceania">오세아니아</option></select></label><button id="progressZoomIn">＋ 확대</button><button id="progressZoomOut">－ 축소</button><button id="progressReset">↺ 전체 보기</button></div>
+<div class="atlasTools"><label>빠른 이동 <select id="progressRegion"><option value="world">🌍 세계 전체</option><option value="asia">아시아</option><option value="europe">유럽</option><option value="africa">아프리카</option><option value="northamerica">북아메리카</option><option value="southamerica">남아메리카</option><option value="oceania">오세아니아</option></select></label><button id="progressZoomIn">＋ 확대</button><button id="progressZoomOut">－ 축소</button><button id="progressReset">↺ 전체 보기</button><button id="progressNamesToggle" aria-pressed="false">🏷️ 나라 이름 보이기</button></div>
 <div class="mapwrap"><svg id="progressMapSvg" viewBox="0 0 900 480" role="img" aria-label="나의 세계지도"></svg></div>
 <p id="progressMapInfo" class="helper" aria-live="polite">색상을 선택하고 국가를 눌러 보세요.</p>
 <div class="layout"><button id="weakPracticeFromMap" class="primary">🎯 헷갈린 국가 집중 연습</button></div>
@@ -563,6 +563,8 @@ function atlasBuild(){if(atlasReady)return;atlasReady=true;const svg=atlasSvg();
 
 // 나의 학습 성취 세계지도: 기존 GeoJSON을 사용하고 국가별 기록만 로컬에서 읽습니다.
 let progressReady=false,progressBox={...ATLAS_WORLD};
+let progressNamesVisible=false;
+const progressPointers=new Map();let progressGesture=null,progressTap=null,progressMoved=false,progressHadMulti=false;
 const MANUAL_MAP_KEY='geo-battle-manual-map-v1';
 let manualMapColors={};
 try{const saved=JSON.parse(localStorage.getItem(MANUAL_MAP_KEY)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))manualMapColors=saved}catch{}
@@ -585,7 +587,7 @@ function selectPaintColor(next){
  document.querySelectorAll('#manualMapPalette button').forEach(b=>b.classList.toggle('selected',b.dataset.paint===next));
 }
 function progressCountryClick(name){
- if(progressMode==='data'){progressInfo(name);return}
+ if(progressMode==='data')return;
  if(paintColor==='unseen')delete manualMapColors[name];
  else manualMapColors[name]=paintColor;
  try{localStorage.setItem(MANUAL_MAP_KEY,JSON.stringify(manualMapColors))}catch(e){console.warn('색칠 지도 저장 실패',e)}
@@ -596,7 +598,44 @@ function progressCountryClick(name){
 }
 
 const progressSvg=()=> $('progressMapSvg');
-function progressView(){const b=progressBox;progressSvg().setAttribute('viewBox',`${b.x} ${b.y} ${b.w} ${b.h}`)}
+function progressView(){
+ const b=progressBox;progressSvg().setAttribute('viewBox',`${b.x} ${b.y} ${b.w} ${b.h}`);
+ if(progressReady)progressDrawNames();
+}
+function progressDrawNames(){
+ const svg=progressSvg();svg.querySelectorAll('.progressName').forEach(n=>n.remove());
+ if(!progressNamesVisible)return;
+ const zoom=900/progressBox.w;
+ const fontSize=Math.min(19,Math.max(11,12*Math.pow(zoom,.18)))/zoom;
+ const occupied=[];
+ for(const f of GEO.features){
+  if(!f.geometry)continue;
+  const country=f.properties.name;
+  const polys=quizHighlightPolygons(f,country);
+  if(!polys.length)continue;
+  // 여러 영토가 떨어진 국가에서는 가장 큰 폴리곤의 중심에 표시합니다.
+  let best=null,bestArea=-1;
+  for(const poly of polys){
+   const ring=poly[0];if(!ring||ring.length<3)continue;
+   let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+   for(const [lon,lat] of ring){const [x,y]=atlasProject(lon,lat);minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y)}
+   const area=(maxX-minX)*(maxY-minY);
+   if(area>bestArea){bestArea=area;best=[(minX+maxX)/2,(minY+maxY)/2]}
+  }
+  if(!best)continue;
+  const [x,y]=best,b=progressBox;
+  if(x<b.x||x>b.x+b.w||y<b.y||y>b.y+b.h)continue;
+  // 작은 나라의 이름이 겹치지 않도록 화면상 거리 기준으로 간격 확보
+  const screenX=(x-b.x)/b.w*900,screenY=(y-b.y)/b.h*480;
+  const name=koName(country),width=Math.min(95,Math.max(24,name.length*9));
+  if(occupied.some(o=>Math.abs(o.x-screenX)<(o.w+width)/2+5&&Math.abs(o.y-screenY)<17))continue;
+  occupied.push({x:screenX,y:screenY,w:width});
+  const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+  label.setAttribute('class','progressName');label.setAttribute('x',x);label.setAttribute('y',y);
+  label.setAttribute('font-size',fontSize);label.setAttribute('stroke-width',fontSize*.16);
+  label.textContent=name;svg.append(label);
+ }
+}
 function progressJump(area){
  const bb=ATLAS_AREAS[area]||ATLAS_AREAS.world;
  if(area==='world'){progressBox={...ATLAS_WORLD};progressView();return}
@@ -604,9 +643,12 @@ function progressJump(area){
  const w=Math.max(ww*1.18,hh*1.18*900/480),h=w*480/900;
  progressBox=atlasClamp({x:x+ww/2-w/2,y:y+hh/2-h/2,w,h});progressView();
 }
-function progressZoom(factor){
- const b=progressBox,w=b.w*factor,h=w*480/900;
- progressBox=atlasClamp({x:b.x+b.w/2-w/2,y:b.y+b.h/2-h/2,w,h});progressView();
+function progressZoom(factor,clientX,clientY){
+ const b=progressBox,rect=progressSvg().getBoundingClientRect();
+ const px=clientX==null?.5:Math.max(0,Math.min(1,(clientX-rect.left)/rect.width));
+ const py=clientY==null?.5:Math.max(0,Math.min(1,(clientY-rect.top)/rect.height));
+ const w=b.w*factor,h=w*480/900;
+ progressBox=atlasClamp({x:b.x+(b.w-w)*px,y:b.y+(b.h-h)*py,w,h});progressView();
 }
 function progressColor(name){
  return progressMode==='manual'?mapPaintColors[manualMapColors[name]||'unseen']:{strong:'#74c6a4',learning:'#f3c46b',weak:'#e98b94',unseen:'#ffffff'}[countryStatus(name)];
@@ -624,10 +666,8 @@ function progressBuild(){
    const polys=quizHighlightPolygons(f,country);
    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
    path.setAttribute('d',polys.map(poly=>poly.map(ring=>ring.map((pt,i)=>{const [x,y]=atlasProject(pt[0],pt[1]);return (i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)}).join('')+'Z').join('')).join(''));
-   path.dataset.country=country;path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',koName(country));
+   path.dataset.country=country;
    const title=document.createElementNS('http://www.w3.org/2000/svg','title');title.textContent=koName(country);path.append(title);
-   path.onclick=()=>progressCountryClick(country);
-   path.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();progressCountryClick(country)}};
    svg.append(path);
   }
   progressReady=true;
@@ -655,7 +695,59 @@ $('progressRegion').onchange=e=>progressJump(e.target.value);
 $('progressZoomIn').onclick=()=>progressZoom(.7);
 $('progressZoomOut').onclick=()=>progressZoom(1.4);
 $('progressReset').onclick=()=>{$('progressRegion').value='world';progressJump('world')};
-progressSvg().addEventListener('wheel',e=>{e.preventDefault();progressZoom(e.deltaY<0?.8:1.25)},{passive:false});
+$('progressNamesToggle').onclick=()=>{
+ progressNamesVisible=!progressNamesVisible;
+ $('progressNamesToggle').textContent=progressNamesVisible?'🏷️ 나라 이름 감추기':'🏷️ 나라 이름 보이기';
+ $('progressNamesToggle').setAttribute('aria-pressed',String(progressNamesVisible));
+ progressDrawNames();
+};
+progressSvg().addEventListener('wheel',e=>{e.preventDefault();progressZoom(e.deltaY<0?.8:1.25,e.clientX,e.clientY)},{passive:false});
+// 지도는 드래그로 이동, 두 손가락으로 이동·확대하며 손을 뗀 뒤에만 탭 색칠을 판정합니다.
+function progressPointerPosition(e){
+ const r=progressSvg().getBoundingClientRect();
+ return {x:e.clientX,y:e.clientY,px:(e.clientX-r.left)/r.width,py:(e.clientY-r.top)/r.height};
+}
+progressSvg().addEventListener('pointerdown',e=>{
+ if(mode!=='progress')return;
+ if(progressPointers.size===0){
+  progressTap={country:e.target.closest?.('path[data-country]')?.dataset.country||null,x:e.clientX,y:e.clientY};
+  progressMoved=false;progressHadMulti=false;
+ }else{progressHadMulti=true;progressTap=null}
+ progressPointers.set(e.pointerId,progressPointerPosition(e));
+ progressGesture={box:{...progressBox},points:new Map(progressPointers)};
+ try{progressSvg().setPointerCapture(e.pointerId)}catch{}
+});
+progressSvg().addEventListener('pointermove',e=>{
+ if(!progressPointers.has(e.pointerId)||!progressGesture)return;
+ progressPointers.set(e.pointerId,progressPointerPosition(e));
+ const old=[...progressGesture.points.values()],now=[...progressPointers.values()];
+ if(!old.length||!now.length)return;
+ const initial=progressGesture.box,a=old[0],b=now[0];
+ if(progressTap&&Math.hypot(e.clientX-progressTap.x,e.clientY-progressTap.y)>7)progressMoved=true;
+ if(old.length>=2&&now.length>=2){
+  progressMoved=true;progressHadMulti=true;
+  const d0=Math.hypot(old[1].x-old[0].x,old[1].y-old[0].y);
+  const d1=Math.hypot(now[1].x-now[0].x,now[1].y-now[0].y);
+  const ratio=Math.max(.1,d0/Math.max(1,d1));
+  const oldCenter={px:(old[0].px+old[1].px)/2,py:(old[0].py+old[1].py)/2};
+  const newCenter={px:(now[0].px+now[1].px)/2,py:(now[0].py+now[1].py)/2};
+  const w=initial.w*ratio,h=w*480/900;
+  progressBox=atlasClamp({x:initial.x+initial.w*oldCenter.px-w*newCenter.px,y:initial.y+initial.h*oldCenter.py-h*newCenter.py,w,h});
+ }else if(progressMoved){
+  progressBox=atlasClamp({x:initial.x-(b.px-a.px)*initial.w,y:initial.y-(b.py-a.py)*initial.h,w:initial.w,h:initial.h});
+ }
+ if(progressMoved){progressSvg().classList.add('dragging');progressView()}
+});
+function progressPointerEnd(e){
+ const isTap=e.type==='pointerup'&&!progressMoved&&!progressHadMulti&&progressTap
+  &&Math.hypot(e.clientX-progressTap.x,e.clientY-progressTap.y)<10&&progressPointers.size===1;
+ const country=isTap?progressTap.country:null;
+ progressPointers.delete(e.pointerId);
+ if(progressPointers.size)progressGesture={box:{...progressBox},points:new Map(progressPointers)};
+ else{progressGesture=null;progressTap=null;progressMoved=false;progressHadMulti=false;progressSvg().classList.remove('dragging')}
+ if(country&&progressMode==='manual')progressCountryClick(country);
+}
+for(const event of ['pointerup','pointercancel','lostpointercapture'])progressSvg().addEventListener(event,progressPointerEnd);
 
 // 취약 국가 집중 연습: 오답이 기록된 국가부터 우선하고 문제는 일반 연습과 같은 정답 판정·복습 기록을 사용합니다.
 function startWeakPractice(){
@@ -891,7 +983,7 @@ setInterval(()=>{if(statsDayLoaded!==statsDay()){renderPersonalStats();if(db&&ui
 function practiceSetup(){show('progressMapPanel',false);document.body.classList.remove('playing');practiceState=null;mode='practice';clean();show('setup',false);show('lobby',false);show('game',false);show('onlineDone',false);show('practiceDone',false);show('practiceConfig',true)}
 // GitHub Pages 자동 업데이트: 같은 고정 주소의 index.html을 캐시 우회 조회합니다.
 // 온라인 배틀 도중에는 새로고침하지 않고 홈으로 돌아왔을 때 적용합니다.
-const GEO_RELEASE='1.2.0';
+const GEO_RELEASE='1.2.1';
 let updateChecking=false,updateCheckedAt=0,updatePending=false,updateTargetVersion=null;
 async function checkLatestVersion(force=false){
  if(updateChecking||(!force&&Date.now()-updateCheckedAt<60000))return;
