@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GEO BATTLE v1.0.6 · 멀티룸</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GEO BATTLE v1.0.7 · 멀티룸</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}body{margin:0;padding:18px;background:linear-gradient(140deg,#f4eaff,#fdf6ff 55%,#e8f3ff);color:#443658;font-family:'Nunito','Malgun Gothic',sans-serif;min-height:100vh}main{max-width:1060px;margin:auto}h1,h2,h3,button,.tag{font-family:'Jua','Malgun Gothic',sans-serif;font-weight:400}h1{font-size:2.5rem;color:#7858b3;margin:14px 0 0}.sub{color:#8d78a6;margin:0 0 20px}.panel{background:rgba(255,255,255,.95);border:2px solid #e6d8fa;box-shadow:0 8px 24px #8e70bd1a;border-radius:24px;padding:22px;margin:15px 0}button,input,select{font:inherit;border-radius:13px;border:2px solid #e2d6f3;padding:11px;color:#443658;background:#fff}button{background:#e9d8ff;border-color:#d5bdf9;cursor:pointer;font-size:1.08rem}button:hover:not(:disabled){background:#d9baff}button:disabled{opacity:.5;cursor:not-allowed}button.primary{background:#9c7bdc;color:white;border-color:#9c7bdc}button.primary:hover{background:#8b68cf}input{max-width:220px}select{max-width:220px}.muted,small{color:#8e7b9d}.hide{display:none!important}.tag{display:inline-block;border-radius:20px;background:#f1e6ff;color:#7d5eb1;padding:7px 13px}.layout{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.mapwrap{background:#e9f3ff;border:3px solid #d5dff5;border-radius:18px;overflow:hidden}#map{width:100%;height:auto;display:block;aspect-ratio:900/480}#map path{stroke:#9da8b8;stroke-width:.75;fill:white;vector-effect:non-scaling-stroke}.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.choices button{min-height:64px;background:#f2eaff}.choices button.correct{background:#c7f4dd;border-color:#5fc58c}.choices button.wrong{background:#ffe0e7;border-color:#ef91aa}.phase{font-size:1.3rem;color:#8d66c4}.time{font-family:'Jua';font-size:2rem;color:#865bd0}.answer{font-family:'Jua';font-size:1.55rem;color:#5b4a8b;padding:10px 0}.qr{display:flex;gap:18px;align-items:center;flex-wrap:wrap}#qr{background:#fff;border:2px solid #e4d8f3;padding:10px;border-radius:14px;min-height:190px;min-width:190px}#qr img,#qr canvas{max-width:170px}a{color:#7853b9;overflow-wrap:anywhere}.error{color:#c23964}.leader{width:100%;border-collapse:collapse}.leader td,.leader th{padding:13px 8px;border-bottom:1px solid #eee3f7;text-align:left}.leader th{color:#866ca3}.leader tr:nth-child(1) td{background:#fff6d9}.leader tr.me td{font-weight:800}.pill{display:inline-block;background:#d8f3e7;padding:5px 10px;border-radius:12px}#feedback{min-height:28px}#practiceResult{font-size:1.3rem}.helper{font-size:.9rem;color:#7e6d92}#scorePanel{margin-top:10px}@media(max-width:600px){body{padding:9px}.panel{padding:14px;border-radius:18px}.choices{gap:7px}.choices button{font-size:.95rem;min-height:58px}h1{font-size:2rem}}
@@ -57,7 +57,7 @@ body.playing .topNavigation{display:none}
 #atlasMap.dragging{cursor:grabbing}
 #atlasMap .atlasCountry{fill:#fff;stroke:#a2acbf;stroke-width:.65;vector-effect:non-scaling-stroke;cursor:pointer}
 #atlasMap .atlasCountry.selectable:hover{fill:#eee3ff;stroke:#8765c2}
-#atlasMap .atlasCountry.chosen,#atlasMap .atlasCountry.chosen:hover{fill:#a783eb;stroke:#6245a1;stroke-width:1.4}
+#atlasMap .atlasCountry.chosen,#atlasMap .atlasCountry.chosen:hover{fill:#a783eb!important;stroke:#6245a1!important;stroke-width:1.4}
 #atlasMap .atlasCountry:not(.selectable){fill:#f5f5f8;cursor:default}
 #atlasMap .atlasCountry:focus{outline:none}
 #atlasMap .atlasCountry:focus-visible{stroke:#6e43bc;stroke-width:2.5}
@@ -65,7 +65,7 @@ body.playing .topNavigation{display:none}
 #atlasSelected{padding:13px 15px;border-radius:14px;background:#f5ecff;border:1px solid #dfc9ff;min-height:55px}
 #atlasSelected strong{color:#7153ac;font-size:1.3rem}
 @media(max-width:600px){#atlas .atlasTools{gap:5px}#atlas .atlasTools button{padding:8px 10px;font-size:.87rem}#atlasMap{aspect-ratio:900/540}}
-</style></head><body><main><div class="topNavigation"><h1 id="brandHome" title="홈으로 이동" role="button" tabindex="0" style="cursor:pointer">🌷 GEO BATTLE <small>v1.0.6</small></h1><a class="adminShortcut" href="./admin.html" aria-label="관리자 페이지로 이동">🔐 관리자</a></div><p class="sub">지도를 탐험하고, 함께 도전하는 우리들의 지리 퀴즈 ✨ <small class="creatorCredit">made by 가현T</small></p>
+</style></head><body><main><div class="topNavigation"><h1 id="brandHome" title="홈으로 이동" role="button" tabindex="0" style="cursor:pointer">🌷 GEO BATTLE <small>v1.0.7</small></h1><a class="adminShortcut" href="./admin.html" aria-label="관리자 페이지로 이동">🔐 관리자</a></div><p class="sub">지도를 탐험하고, 함께 도전하는 우리들의 지리 퀴즈 ✨ <small class="creatorCredit">made by 가현T</small></p>
 <section class="panel" id="setup"><h2>어떤 모드로 시작할까요? 💜</h2><div class="layout"><label>닉네임 <input id="nick" maxlength="18" placeholder="닉네임 필수 입력" required></label><button class="primary" id="create">🎮 친구들과 대결방 만들기</button><button id="join">🔑 4자리 코드로 입장</button><button id="practice">🌼 혼자 연습하기</button><button id="atlasHome">🗺️ 백지도 공부하기</button><button id="bookmarksHome">⭐ 내 북마크 <span id="bookmarkCount"></span></button></div><p id="notice" class="muted">연습은 바로 시작할 수 있어요. 실시간 대결은 Firebase 연결이 필요해요.</p></section>
 
 <section class="panel" id="dailyDashboard" aria-label="GEO BATTLE 통계">
@@ -333,12 +333,12 @@ function atlasZoom(factor,clientX,clientY){const svg=atlasSvg(),rect=svg.getBoun
 function atlasJump(area){const bb=ATLAS_AREAS[area]||ATLAS_AREAS.world;if(area==='world'){atlasBox={...ATLAS_WORLD};atlasView();return}const [west,east,south,north]=bb;const x=(west+180)/360*900,y=(85-north)/170*480,ww=(east-west)/360*900,hh=(north-south)/170*480;const w=Math.max(ww*1.18,hh*1.18*900/480),h=w*480/900;atlasBox=atlasClamp({x:x+ww/2-w/2,y:y+hh/2-h/2,w,h});atlasView()}
 function atlasMark(country){
  atlasSelected=country;
- atlasChosen.add(country);
+ if(atlasChosen.has(country))atlasChosen.delete(country);else atlasChosen.add(country);
  const svg=atlasSvg();
  for(const p of svg.querySelectorAll('.atlasCountry'))p.classList.toggle('chosen',atlasChosen.has(p.dataset.country));
  // 이름은 지도 아래에도 크게 표시하여 모바일 확대 상태에서도 확인 가능하게 합니다.
  const selected=$('atlasSelected');selected.replaceChildren();
- const strong=document.createElement('strong');strong.textContent='📍 '+koName(country);
+ const strong=document.createElement('strong');strong.textContent=(atlasChosen.has(country)?'📍 '+koName(country)+' 선택됨':'📍 '+koName(country)+' 선택 해제');
  const note=document.createElement('span');note.textContent=' · '+targetRegion(country)+' · 지금까지 확인한 국가 '+atlasChosen.size+'개';
  selected.append(strong,note);
  atlasDrawLabels();
@@ -356,7 +356,7 @@ function atlasDrawLabels(){
   label.setAttribute('font-size',fontSize);label.textContent=koName(country);svg.appendChild(label);
  }
 }
-function atlasBuild(){if(atlasReady)return;atlasReady=true;const svg=atlasSvg();const valid=new Set(candidates('전 세계'));for(const f of GEO.features){if(!f.geometry)continue;const country=f.properties.name,polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[];if(!polys.length)continue;const path=document.createElementNS('http://www.w3.org/2000/svg','path');const d=polys.map(poly=>poly.map(ring=>ring.map((pt,i)=>{const [x,y]=atlasProject(pt[0],pt[1]);return (i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)}).join('')+'Z').join('')).join('');path.setAttribute('d',d);path.setAttribute('class','atlasCountry'+(valid.has(country)?' selectable':''));path.dataset.country=country;if(valid.has(country)){path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',koName(country));path.addEventListener('click',()=>{if(!atlasMoved)atlasMark(country)});path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();atlasMark(country)}})}svg.appendChild(path)}atlasView()}
+function atlasBuild(){if(atlasReady)return;atlasReady=true;const svg=atlasSvg();const valid=new Set(GEO.features.filter(f=>f.geometry).map(f=>f.properties.name));for(const f of GEO.features){if(!f.geometry)continue;const country=f.properties.name,polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[];if(!polys.length)continue;const path=document.createElementNS('http://www.w3.org/2000/svg','path');const d=polys.map(poly=>poly.map(ring=>ring.map((pt,i)=>{const [x,y]=atlasProject(pt[0],pt[1]);return (i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)}).join('')+'Z').join('')).join('');path.setAttribute('d',d);path.setAttribute('class','atlasCountry'+(valid.has(country)?' selectable':''));path.dataset.country=country;if(valid.has(country)){path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',koName(country));path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();atlasMark(country)}})}svg.appendChild(path)}atlasView()}
 function openAtlas(){if(mode==='online'&&roomId){alert('게임방을 나간 뒤 백지도를 이용해 주세요.');return}practiceState=null;mode='atlas';document.body.classList.remove('playing');clean();for(const id of ['setup','lobby','game','onlineDone','practiceDone','practiceConfig','review','onlineReviewBtn'])show(id,false);show('atlas',true);atlasBuild();atlasJump('world');$('atlasRegion').value='world'}
 $('atlasHome').onclick=openAtlas;
 $('atlasHomeBack').onclick=()=>{show('atlas',false);localHome()};
@@ -366,10 +366,52 @@ $('atlasZoomOut').onclick=()=>atlasZoom(1/.65);
 $('atlasReset').onclick=()=>{atlasJump('world');$('atlasRegion').value='world'};
 atlasSvg().addEventListener('wheel',e=>{e.preventDefault();atlasZoom(e.deltaY<0?.82:1/.82,e.clientX,e.clientY)},{passive:false});
 function atlasPointerPos(e){const r=atlasSvg().getBoundingClientRect();return {x:e.clientX,y:e.clientY,px:(e.clientX-r.left)/r.width,py:(e.clientY-r.top)/r.height}}
-atlasSvg().addEventListener('pointerdown',e=>{if(mode!=='atlas')return;atlasSvg().setPointerCapture(e.pointerId);atlasPointers.set(e.pointerId,atlasPointerPos(e));atlasGesture={box:{...atlasBox},points:new Map(atlasPointers)};atlasMoved=false;atlasSvg().classList.add('dragging')});
-atlasSvg().addEventListener('pointermove',e=>{if(!atlasPointers.has(e.pointerId)||!atlasGesture)return;atlasPointers.set(e.pointerId,atlasPointerPos(e));const old=[...atlasGesture.points.values()],now=[...atlasPointers.values()];if(!old.length||!now.length)return;const a=old[0],b=now[0];if(Math.hypot(b.x-a.x,b.y-a.y)>5)atlasMoved=true;const initial=atlasGesture.box;if(old.length>=2&&now.length>=2){const oldDist=Math.hypot(old[1].x-old[0].x,old[1].y-old[0].y),newDist=Math.hypot(now[1].x-now[0].x,now[1].y-now[0].y);const ratio=Math.max(.1,oldDist/Math.max(1,newDist));const centerOld={px:(old[0].px+old[1].px)/2,py:(old[0].py+old[1].py)/2},centerNow={px:(now[0].px+now[1].px)/2,py:(now[0].py+now[1].py)/2};const w=initial.w*ratio,h=initial.h*ratio;atlasBox=atlasClamp({x:initial.x+initial.w*centerOld.px-w*centerNow.px,y:initial.y+initial.h*centerOld.py-h*centerNow.py,w,h});atlasMoved=true}else{atlasBox=atlasClamp({x:initial.x-(b.px-a.px)*initial.w,y:initial.y-(b.py-a.py)*initial.h,w:initial.w,h:initial.h})}atlasView()});
-function atlasPointerEnd(e){atlasPointers.delete(e.pointerId);if(atlasPointers.size){atlasGesture={box:{...atlasBox},points:new Map(atlasPointers)}}else{atlasGesture=null;atlasSvg().classList.remove('dragging');setTimeout(()=>{atlasMoved=false},0)}}
-atlasSvg().addEventListener('pointerup',atlasPointerEnd);atlasSvg().addEventListener('pointercancel',atlasPointerEnd);
+// 터치 클릭과 지도 드래그를 분리합니다. 포인터 캡처가 path의 click 이벤트를 가로채지 않도록 pointerup에서 직접 판정합니다.
+let atlasTapCountry=null,atlasTapPoint=null,atlasHadGesture=false;
+atlasSvg().addEventListener('pointerdown',e=>{
+ if(mode!=='atlas')return;
+ const target=e.target.closest?.('.atlasCountry.selectable');
+ if(atlasPointers.size===0){atlasTapCountry=target?.dataset.country||null;atlasTapPoint={x:e.clientX,y:e.clientY};atlasHadGesture=false;}
+ else{atlasTapCountry=null;atlasHadGesture=true;}
+ atlasPointers.set(e.pointerId,atlasPointerPos(e));
+ atlasGesture={box:{...atlasBox},points:new Map(atlasPointers)};
+ atlasMoved=false;
+ atlasSvg().setPointerCapture(e.pointerId);
+});
+atlasSvg().addEventListener('pointermove',e=>{
+ if(!atlasPointers.has(e.pointerId)||!atlasGesture)return;
+ atlasPointers.set(e.pointerId,atlasPointerPos(e));
+ const old=[...atlasGesture.points.values()],now=[...atlasPointers.values()];
+ if(!old.length||!now.length)return;
+ const a=old[0],b=now[0];
+ if(atlasTapPoint&&Math.hypot(e.clientX-atlasTapPoint.x,e.clientY-atlasTapPoint.y)>8)atlasMoved=true;
+ if(old.length>=2&&now.length>=2){
+  atlasHadGesture=true;atlasMoved=true;
+  const oldDist=Math.hypot(old[1].x-old[0].x,old[1].y-old[0].y);
+  const newDist=Math.hypot(now[1].x-now[0].x,now[1].y-now[0].y);
+  const ratio=Math.max(.1,oldDist/Math.max(1,newDist));
+  const centerOld={px:(old[0].px+old[1].px)/2,py:(old[0].py+old[1].py)/2};
+  const centerNow={px:(now[0].px+now[1].px)/2,py:(now[0].py+now[1].py)/2};
+  const initial=atlasGesture.box,w=initial.w*ratio,h=initial.h*ratio;
+  atlasBox=atlasClamp({x:initial.x+initial.w*centerOld.px-w*centerNow.px,y:initial.y+initial.h*centerOld.py-h*centerNow.py,w,h});
+ }else if(atlasMoved){
+  const initial=atlasGesture.box;
+  atlasBox=atlasClamp({x:initial.x-(b.px-a.px)*initial.w,y:initial.y-(b.py-a.py)*initial.h,w:initial.w,h:initial.h});
+ }
+ if(atlasMoved)atlasSvg().classList.add('dragging');
+ if(atlasMoved)atlasView();
+});
+function atlasPointerEnd(e){
+ const wasTap=e.type==='pointerup'&&!atlasMoved&&!atlasHadGesture&&atlasTapCountry&&atlasTapPoint
+  &&Math.hypot(e.clientX-atlasTapPoint.x,e.clientY-atlasTapPoint.y)<10&&atlasPointers.size===1;
+ const country=atlasTapCountry;
+ atlasPointers.delete(e.pointerId);
+ if(atlasPointers.size){atlasGesture={box:{...atlasBox},points:new Map(atlasPointers)};}
+ else{atlasGesture=null;atlasSvg().classList.remove('dragging');atlasTapCountry=null;atlasTapPoint=null;atlasMoved=false;atlasHadGesture=false;}
+ if(wasTap)atlasMark(country);
+}
+atlasSvg().addEventListener('pointerup',atlasPointerEnd);
+atlasSvg().addEventListener('pointercancel',atlasPointerEnd);
 
 function show(id,yes){$(id).classList.toggle('hide',!yes)}
 function stage(s){show('questionArea',s==='active'||s==='reveal');show('answerArea',s==='reveal');show('rankArea',s==='ranking'||s==='finished');$('phaseLabel').textContent=({active:'🗺️ 문제 풀기',reveal:'💡 정답 공개',ranking:'🏆 현재 순위',finished:'🎊 최종 순위'})[s]||'대기 중'}
