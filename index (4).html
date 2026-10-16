@@ -1,0 +1,520 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GEO BATTLE v1.0.3 · 멀티룸</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;padding:18px;background:linear-gradient(140deg,#f4eaff,#fdf6ff 55%,#e8f3ff);color:#443658;font-family:'Nunito','Malgun Gothic',sans-serif;min-height:100vh}main{max-width:1060px;margin:auto}h1,h2,h3,button,.tag{font-family:'Jua','Malgun Gothic',sans-serif;font-weight:400}h1{font-size:2.5rem;color:#7858b3;margin:14px 0 0}.sub{color:#8d78a6;margin:0 0 20px}.panel{background:rgba(255,255,255,.95);border:2px solid #e6d8fa;box-shadow:0 8px 24px #8e70bd1a;border-radius:24px;padding:22px;margin:15px 0}button,input,select{font:inherit;border-radius:13px;border:2px solid #e2d6f3;padding:11px;color:#443658;background:#fff}button{background:#e9d8ff;border-color:#d5bdf9;cursor:pointer;font-size:1.08rem}button:hover:not(:disabled){background:#d9baff}button:disabled{opacity:.5;cursor:not-allowed}button.primary{background:#9c7bdc;color:white;border-color:#9c7bdc}button.primary:hover{background:#8b68cf}input{max-width:220px}select{max-width:220px}.muted,small{color:#8e7b9d}.hide{display:none!important}.tag{display:inline-block;border-radius:20px;background:#f1e6ff;color:#7d5eb1;padding:7px 13px}.layout{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.mapwrap{background:#e9f3ff;border:3px solid #d5dff5;border-radius:18px;overflow:hidden}#map{width:100%;height:auto;display:block;aspect-ratio:900/480}#map path{stroke:#9da8b8;stroke-width:.75;fill:white;vector-effect:non-scaling-stroke}.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.choices button{min-height:64px;background:#f2eaff}.choices button.correct{background:#c7f4dd;border-color:#5fc58c}.choices button.wrong{background:#ffe0e7;border-color:#ef91aa}.phase{font-size:1.3rem;color:#8d66c4}.time{font-family:'Jua';font-size:2rem;color:#865bd0}.answer{font-family:'Jua';font-size:1.55rem;color:#5b4a8b;padding:10px 0}.qr{display:flex;gap:18px;align-items:center;flex-wrap:wrap}#qr{background:#fff;border:2px solid #e4d8f3;padding:10px;border-radius:14px;min-height:190px;min-width:190px}#qr img,#qr canvas{max-width:170px}a{color:#7853b9;overflow-wrap:anywhere}.error{color:#c23964}.leader{width:100%;border-collapse:collapse}.leader td,.leader th{padding:13px 8px;border-bottom:1px solid #eee3f7;text-align:left}.leader th{color:#866ca3}.leader tr:nth-child(1) td{background:#fff6d9}.leader tr.me td{font-weight:800}.pill{display:inline-block;background:#d8f3e7;padding:5px 10px;border-radius:12px}#feedback{min-height:28px}#practiceResult{font-size:1.3rem}.helper{font-size:.9rem;color:#7e6d92}#scorePanel{margin-top:10px}@media(max-width:600px){body{padding:9px}.panel{padding:14px;border-radius:18px}.choices{gap:7px}.choices button{font-size:.95rem;min-height:58px}h1{font-size:2rem}}
+
+.reviewCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.reviewCard{background:#fbf8ff;border:1px solid #e5d5f8;border-radius:16px;padding:15px}.reviewCard h3{margin:5px 0}.reviewCard p{margin:7px 0}.reviewCard button{width:100%}.reviewMapContainer[hidden]{display:none}.reviewMapContainer{margin:8px 0}.reviewMap{width:100%;height:auto;border:1px solid #e6d8fa;border-radius:15px;background:#eaf3ff}.reviewActions{display:flex;gap:9px;flex-wrap:wrap;margin:15px 0}.reviewTag{font-weight:bold;color:#7c59a8}.note{background:#f5eeff;border-radius:12px;padding:12px}
+
+/* 게임 중에는 화면 높이에 맞춰 지도·선지·결과를 배치합니다. */
+body.playing{padding:6px 10px;overflow-x:hidden}
+body.playing main{max-width:1000px}
+body.playing main>.topNavigation,body.playing main>.sub,body.playing #lobby{display:none!important}
+body.playing #game{margin:0;padding:10px 14px;min-height:0;display:flex;flex-direction:column;justify-content:flex-start;gap:4px}
+body.playing #game.hide{display:none!important}
+body.playing #game .mapwrap{width:100%;max-width:850px;margin:0 auto;flex-shrink:0}
+body.playing #game #map{max-height:clamp(140px,40dvh,450px);aspect-ratio:900/480}
+body.playing #game #questionArea{min-height:0;display:flex;flex-direction:column;flex:0 0 auto;gap:0}
+body.playing #game #questionArea.hide{display:none!important}
+body.playing #questionArea h2{font-size:clamp(1rem,2.6vh,1.4rem);margin:3px 0 6px}
+body.playing #mapStatus{margin:3px 0;font-size:.72rem}
+body.playing .choices{margin-top:5px;gap:6px}
+body.playing .choices button{min-height:clamp(38px,7vh,56px);padding:6px;font-size:clamp(.84rem,2vh,1.08rem)}
+body.playing #feedback{margin:3px 0;min-height:18px;font-size:.85rem}
+body.playing #answerArea{order:0;margin-top:3px;flex-shrink:0;background:#f0e7ff;border-radius:12px;padding:5px 10px}body.playing #questionArea{order:1}body.playing #rankArea{order:2}
+body.playing #answerArea .answer{padding:3px 0;font-size:1.2rem}
+body.playing #answerArea p{margin:3px 0}
+body.playing #rankArea{overflow:auto;min-height:0;flex:1}
+body.playing #rankArea h2{margin:6px 0}
+body.playing .leader td,body.playing .leader th{padding:8px 5px}
+body.playing #timer{font-size:1.35rem}
+@media(max-width:600px){body.playing{padding:3px}body.playing #game{padding:7px;min-height:0}body.playing #game #map{max-height:34dvh}body.playing #game .phase{font-size:1rem}body.playing #game .tag{padding:4px 7px;font-size:.78rem}body.playing #gameHome{padding:5px 8px;font-size:.8rem}body.playing .leader td,body.playing .leader th{font-size:.82rem;padding:6px 4px}}
+ .winnerAnnouncement{font-family:'Jua','Malgun Gothic',sans-serif;text-align:center;font-size:clamp(1.35rem,4vw,2.2rem);color:#7650ae;background:#f3e8ff;border:2px solid #cdb6f1;border-radius:20px;padding:18px 12px;margin:12px 0;animation:winnerPop .5s ease-out both}
+.winnerName{font-size:clamp(1.3rem,4vw,2rem);font-weight:800}.winnerPraise{font-size:clamp(1.4rem,4.4vw,2.3rem);font-weight:900;margin-top:8px}.winnerStats{font-size:clamp(.9rem,2.7vw,1.15rem);font-weight:600;color:#6e6280;margin-top:10px}@keyframes winnerPop{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+.finalRankScroll{overflow-x:auto;max-height:42dvh;overflow-y:auto}
+#onlineDone button{margin:4px}
+@media(max-height:740px){body.playing #game #map{max-height:29dvh}body.playing .choices button{min-height:36px;padding:4px}body.playing #questionArea h2{margin:0}}
+#practiceBookmarkArea button{background:#fff3cb;border-color:#ebd28d}#reviewCards .reviewCard>button{margin:4px 5px 4px 0}#bookmarkCount{font-size:.8em}@media(orientation:portrait){body.playing #game{gap:2px}body.playing #questionArea h2{margin:2px 0 4px}body.playing #mapStatus{margin:2px 0}body.playing .choices{margin-top:3px;gap:5px}body.playing #feedback{margin:2px 0;min-height:0}body.playing #game .mapwrap{margin:0 auto}body.playing #game #map{height:auto;max-height:min(35dvh,360px)}body.playing #practiceBookmarkArea{margin-top:4px!important}}
+ .creatorCredit{display:inline-block;margin-left:5px;font-size:.68em;font-weight:400;opacity:.7;white-space:nowrap;vertical-align:baseline}
+
+ .statsTabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}.statsTabs button{font-size:1rem;padding:9px 15px;background:#f5edff;border-color:#e4d6f7}.statsTabs button.active{background:#9371d5;color:white;border-color:#9371d5}.statsSubhead{font-size:1.03rem;margin:12px 0 9px}.statsFoot{font-size:.76rem;margin:11px 0 0}.dailyGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}@media(max-width:520px){.dailyGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.statsTabs button{flex:1;font-size:.92rem;padding:9px 7px}}
+body:has(#setup.hide) #dailyDashboard{display:none!important}.dailyGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.dailyStat{border-radius:13px;padding:12px 7px;text-align:center;background:#f8f1ff;border:1px solid #e9ddf7}.dailyStat span{display:block;font-size:.78rem;color:#786d87}.dailyStat strong{display:block;font-size:1.45rem;color:#7254a5;margin-top:4px}.dailyWrong{background:#fffaf1;border-radius:13px;padding:11px 13px}.dailyWrong p{margin:6px 0;font-size:.86rem}.dailyWrong .bar{height:6px;background:#eee4dc;border-radius:6px;overflow:hidden;margin-top:4px}.dailyWrong .bar>i{display:block;height:100%;background:#ee9b83;border-radius:6px}@media(max-width:520px){.dailyGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.dailyStat{padding:8px 5px}.dailyStat strong{font-size:1.2rem}}
+
+/* 학생용 화면 우측 상단 관리자 페이지 바로가기 */
+.topNavigation{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
+.topNavigation h1{margin:0;min-width:0}
+.adminShortcut{display:inline-flex;align-items:center;justify-content:center;gap:5px;flex-shrink:0;text-decoration:none;font-family:'Nunito','Malgun Gothic',sans-serif;font-size:.87rem;font-weight:800;color:#70529f;background:#fff;border:1px solid #ddc9f6;border-radius:999px;padding:9px 14px;box-shadow:0 2px 7px #8463a017}
+.adminShortcut:hover,.adminShortcut:focus-visible{background:#efe2ff;outline:2px solid #c5a6f0;outline-offset:2px}
+@media(max-width:480px){.topNavigation{gap:6px}.topNavigation h1{font-size:clamp(1.35rem,5vw,1.9rem)}.adminShortcut{font-size:.75rem;padding:8px 10px}}
+body.playing .topNavigation{display:none}
+
+.inlineReview{margin:18px 0;padding:16px;border:2px solid #e7d8fa;border-radius:18px;background:#faf7ff}.inlineReview h3{margin:0 0 10px}
+</style></head><body><main><div class="topNavigation"><h1 id="brandHome" title="홈으로 이동" role="button" tabindex="0" style="cursor:pointer">🌷 GEO BATTLE <small>v1.0.3</small></h1><a class="adminShortcut" href="./admin.html" aria-label="관리자 페이지로 이동">🔐 관리자</a></div><p class="sub">지도를 탐험하고, 함께 도전하는 우리들의 지리 퀴즈 ✨ <small class="creatorCredit">made by 가현T</small></p>
+<section class="panel" id="setup"><h2>어떤 모드로 시작할까요? 💜</h2><div class="layout"><label>닉네임 <input id="nick" maxlength="18" placeholder="닉네임 필수 입력" required></label><button class="primary" id="create">🎮 친구들과 대결방 만들기</button><button id="join">🔑 4자리 코드로 입장</button><button id="practice">🌼 혼자 연습하기</button><button id="bookmarksHome">⭐ 내 북마크 <span id="bookmarkCount"></span></button></div><p id="notice" class="muted">연습은 바로 시작할 수 있어요. 실시간 대결은 Firebase 연결이 필요해요.</p></section>
+
+<section class="panel" id="dailyDashboard" aria-label="GEO BATTLE 통계">
+<h2 style="margin:0 0 10px">📊 GEO BATTLE 통계 <small id="statsDate" style="font-size:.65em;color:#81748e"></small></h2>
+<div class="statsTabs" role="tablist" aria-label="통계 종류">
+<button id="statsAllTab" type="button" class="active" role="tab" aria-selected="true" aria-controls="statsAllPanel">🌏 전체 이용 현황</button>
+<button id="statsMineTab" type="button" role="tab" aria-selected="false" aria-controls="statsMinePanel">💜 나의 학습 기록</button>
+</div>
+<div id="statsAllPanel" role="tabpanel" aria-labelledby="statsAllTab">
+<h3 class="statsSubhead">오늘의 전체 기록</h3>
+<div class="dailyGrid">
+<div class="dailyStat"><span>👥 오늘의 접속 기기</span><strong id="statVisitors">—</strong></div>
+<div class="dailyStat"><span>🎮 오늘의 배틀</span><strong id="statBattles">—</strong></div>
+<div class="dailyStat"><span>🌼 오늘의 연습</span><strong id="statPractices">—</strong></div>
+</div>
+<p id="statAccuracy" class="muted" style="margin:9px 0">오늘의 전체 정답률: 집계 중…</p>
+<div class="dailyWrong"><b>🔥 오늘 가장 많이 틀린 국가 TOP 3</b><div id="statWrongList" class="muted">통계를 불러오는 중…</div></div>
+<p class="muted statsFoot">한국 시간 기준 · 모든 기기의 배틀과 연습 포함 · 오답률은 응답 5회 이상 국가 기준 · 접속 기기는 브라우저별 추정치</p>
+</div>
+<div id="statsMinePanel" role="tabpanel" aria-labelledby="statsMineTab" class="hide">
+<h3 class="statsSubhead">📅 오늘 내가 한 활동</h3>
+<div class="dailyGrid">
+<div class="dailyStat"><span>🎮 배틀 참여</span><strong id="myTodayBattles">0회</strong></div>
+<div class="dailyStat"><span>🌼 연습 시작</span><strong id="myTodayPractices">0회</strong></div>
+<div class="dailyStat"><span>🗺️ 국가 응답</span><strong id="myTodayAnswers">0개</strong></div>
+</div>
+<h3 class="statsSubhead">🏅 지금까지의 누적 활동</h3>
+<div class="dailyGrid">
+<div class="dailyStat"><span>🎮 배틀 참여</span><strong id="myTotalBattles">0회</strong></div>
+<div class="dailyStat"><span>🌼 연습 시작</span><strong id="myTotalPractices">0회</strong></div>
+<div class="dailyStat"><span>🗺️ 국가 응답</span><strong id="myTotalAnswers">0개</strong></div>
+</div>
+<p class="muted statsFoot">내 기록은 이 브라우저에 저장돼요. 국가 응답은 같은 국가를 여러 번 풀어도 각각 1개로 계산해요. 브라우저 데이터 삭제 시 기록이 사라질 수 있어요.</p>
+</div>
+</section>
+<section class="panel hide" id="lobby"><h2>💌 게임방 <span id="roomCode"></span></h2><p class="helper">친구에게 위의 숫자 4자리를 알려주세요. 각자 닉네임을 입력하고 입장하면 됩니다.</p><p id="players"></p><p id="lobbyStatus" class="muted"></p><div class="layout"><button class="primary" id="readyBtn">🙋 준비하기</button><button id="leaveRoom">🚪 방 나가기</button><button id="lobbyReview">📚 지난 판 복습</button></div><div id="controls" class="hide"><div class="layout"><label>출제 지역 <select id="region"></select></label><label>난이도 <select id="difficulty"><option value="easy" selected>쉬움</option><option value="medium">보통</option><option value="hard">어려움</option></select></label><label>문제 수 <select id="count"></select></label></div><p class="helper">10초 문제 → 3초 정답 → 5초 순위 → 다음 문제 자동 시작</p><p class="helper">방장이 선택한 설정은 자동 저장돼요. 참가자 전원 준비 완료 시 현재 설정으로 3초 후 시작합니다.</p><p id="settingsStatus" class="helper" aria-live="polite"></p></div></section>
+<section class="panel hide" id="practiceConfig"><h2>🌼 혼자 연습하기</h2><p class="muted">게임방 없이 자유롭게 연습해요. 답을 고르는 시간제한은 없어요. 선택하면 3초간 정답을 공개한 뒤 다음 문제로 자동 이동해요. 헷갈린 국가는 ⭐ 북마크로 저장할 수 있어요.</p><div class="layout"><label>출제 지역 <select id="practiceRegion"></select></label><label>난이도 <select id="practiceDifficulty"><option value="easy">쉬움</option><option value="medium" selected>보통</option><option value="hard">어려움</option></select></label><label>문제 수 <select id="practiceCount"></select></label><button class="primary" id="practiceStart">연습 시작 ✨</button><button id="home">처음으로</button></div></section>
+<section class="panel hide" id="game"><div class="layout" style="justify-content:space-between"><div><span class="tag" id="round">ROUND</span><div class="phase" id="phaseLabel">문제</div></div><div class="layout"><button id="gameHome" class="hide">⌂ 홈으로</button><div class="time" id="timer">10.0초</div></div></div><div id="answerArea" class="hide"><div class="answer" id="answerText"></div><p id="myAnswer"></p></div><div id="questionArea"><h2>회색으로 표시된 국가는 어디일까요?</h2><div class="mapwrap"><svg id="map" viewBox="0 0 900 480" role="img" aria-label="회색으로 강조된 국가가 있는 백지도"></svg></div><p id="mapStatus" class="helper"></p><div class="choices" id="choices"></div><p id="feedback"></p></div><div id="practiceBookmarkArea" class="hide layout" style="margin-top:8px"><button id="practiceBookmark" type="button">☆ 이 국가 북마크</button><span id="practiceBookmarkStatus" class="helper"></span></div><div id="practiceNextArea" class="hide layout" style="margin-top:14px"><button class="primary" id="practiceNext">다음 문제 →</button></div><div id="rankArea" class="hide"><h2>🏆 지금까지의 순위</h2><table class="leader"><thead><tr><th>순위</th><th>닉네임</th><th>점수</th><th>정답 개수</th></tr></thead><tbody id="ranking"></tbody></table></div></section>
+<section class="panel hide" id="onlineDone"><h2>🎉 이번 판이 끝났어요!</h2><div id="winnerAnnouncement" class="winnerAnnouncement" role="status" aria-live="polite"></div><h3>🏆 최종 전체 순위</h3><div class="finalRankScroll"><table class="leader"><thead><tr><th>순위</th><th>닉네임</th><th>점수</th><th>정답</th></tr></thead><tbody id="finalRanking"></tbody></table></div><div id="inlineReview" class="inlineReview"><h3>📚 이번 판 복습 노트</h3><p class="helper">정답·내 선택·국가별 위치와 정보를 바로 확인할 수 있어요.</p><div id="inlineReviewCards" class="reviewCards"></div></div><p id="onlineDoneStatus">계속 플레이할까요?</p><button class="primary" id="continueBtn">🔄 이어하기</button><button id="quitBtn">🚪 끝내기</button></section><div class="hide" id="onlineReviewBtn" style="text-align:center"><button class="primary" id="openOnlineReview">📚 이번 게임 문제 복습하기</button></div><section class="panel hide" id="practiceDone"><h2>🎉 연습 완료!</h2><p id="practiceResult"></p><button id="again" class="primary">다시 연습하기</button><button id="practiceReview">📚 복습 노트 · 국가 정보 보기</button><button id="bookmarksDone">⭐ 내 북마크</button><button id="doneHome">⌂ 홈으로</button></section>
+<section class="panel hide" id="review"><h2>📚 나만의 지리 복습 노트</h2><p id="reviewSummary"></p><p id="bookmarkStorageHint" class="helper">북마크는 현재 브라우저에 저장됩니다. 같은 사이트 주소와 브라우저에서 다시 확인할 수 있어요.</p><div class="reviewActions"><button id="reviewAll" class="primary">전체 문제</button><button id="reviewWrong">오답만 보기</button><button id="reviewBookmarks">⭐ 북마크만 보기</button><button id="retryWrong">✏️ 오답 다시 풀기</button><button id="reviewBack">돌아가기</button></div><div id="reviewCards" class="reviewCards"></div><p class="helper">회색으로 표시된 국가의 위치를 다시 확인하고, 국가별 대표 명소와 상징을 살펴보세요. 구글맵에서는 검색한 국가를 더 자세히 탐색할 수 있어요.</p></section>
+</main><script src="./map-data.js"></script><script type="module">
+
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import {getAuth,signInAnonymously} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import {getFirestore,doc,collection,getDoc,setDoc,updateDoc,onSnapshot,serverTimestamp,runTransaction,getDocs,deleteDoc,deleteField,arrayUnion,increment,Timestamp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import {firebaseConfig} from './firebase-config.js';
+const $=id=>document.getElementById(id);
+
+// 통계는 KST 날짜별 누적 문서 + 국가별 문서로 저장합니다. 서버의 실시간 통계와 다를 수 있습니다.
+const STATS_ZONE='Asia/Seoul';
+function statsDay(){const parts=new Intl.DateTimeFormat('en-US',{timeZone:STATS_ZONE,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const get=t=>parts.find(p=>p.type===t).value;return get('year')+'-'+get('month')+'-'+get('day')}
+const statsSession=crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random();
+const DEVICE_KEY='geo-battle-browser-device-v2';
+function browserDeviceId(){try{let id=localStorage.getItem(DEVICE_KEY);if(!id){id=crypto.randomUUID?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint32Array(4)),n=>n.toString(16)).join('');localStorage.setItem(DEVICE_KEY,id)}return id}catch{return statsSession}}
+const stableBrowserId=browserDeviceId();
+let statsUnsubs=[],statsCountryUnsub=null,statsDayLoaded='',statsStarted=new Set();
+function statsError(e){console.warn('통계 저장/조회 실패',e);if($('statWrongList')&&$('statWrongList').textContent==='통계를 불러오는 중…')$('statWrongList').textContent='통계에 연결할 수 없어요. Firebase 규칙을 확인해 주세요.'}
+async function statOnce(type,key,delta,country=''){
+ if(!db||!uid)return;
+ const day=statsDay(),eventId=type+'_'+key,ev=doc(db,'stats',day,'events',eventId),daily=doc(db,'stats',day);
+ const cRef=country?doc(db,'stats',day,'countries',country):null;
+ await runTransaction(db,async tx=>{
+  const old=await tx.get(ev);if(old.exists())return;
+  // Firestore transaction: read before writes; event ID deduplicates retries.
+  tx.set(ev,{uid,type,createdAt:serverTimestamp()});
+  const {__wrongNumeric,...dailyDelta}=delta;tx.set(daily,dailyDelta,{merge:true});
+  if(cRef)tx.set(cRef,{total:increment(1),wrong:increment(delta.__wrongNumeric||0)},{merge:true});
+ });
+}
+// 개인 학습 기록: 로그인 없이 현재 브라우저에 저장, 오늘/누적 집계.
+const PERSONAL_STATS_KEY='geo-battle-personal-stats-v1';
+const emptyPersonal=()=>({days:{},total:{battles:0,practices:0,answers:0},seen:{}});
+function loadPersonal(){try{const v=JSON.parse(localStorage.getItem(PERSONAL_STATS_KEY)||'null');return v&&v.days&&v.total&&v.seen?v:emptyPersonal()}catch{return emptyPersonal()}}
+let personalStats=loadPersonal();
+function renderPersonalStats(){
+ const today=personalStats.days[statsDay()]||{},all=personalStats.total;
+ for(const [id,value,unit] of [['myTodayBattles',today.battles||0,'회'],['myTodayPractices',today.practices||0,'회'],['myTodayAnswers',today.answers||0,'개'],['myTotalBattles',all.battles||0,'회'],['myTotalPractices',all.practices||0,'회'],['myTotalAnswers',all.answers||0,'개']])$(id).textContent=value.toLocaleString()+unit;
+}
+function recordPersonal(type,key){
+ const field=type==='battle'?'battles':type==='practice'?'practices':type==='answer'?'answers':null;
+ if(!field)return;
+ const day=statsDay(),id=type+'_'+key;
+ if(personalStats.seen[id])return;
+ personalStats.seen[id]=day;
+ const today=personalStats.days[day]||(personalStats.days[day]={battles:0,practices:0,answers:0});
+ today[field]=(today[field]||0)+1;personalStats.total[field]=(personalStats.total[field]||0)+1;
+ // 이전 날짜의 중복 방지 키만 정리; 누적 숫자는 유지합니다.
+ const cutoff=new Date(Date.now()-45*86400000).toISOString().slice(0,10);
+ if(Object.keys(personalStats.seen).length>3000)for(const [k,v] of Object.entries(personalStats.seen))if(v<cutoff)delete personalStats.seen[k];
+ try{localStorage.setItem(PERSONAL_STATS_KEY,JSON.stringify(personalStats))}catch(e){console.warn('개인 통계 저장 실패',e)}
+ renderPersonalStats();
+}
+function selectStatsTab(tab){
+ const mine=tab==='mine';$('statsAllPanel').classList.toggle('hide',mine);$('statsMinePanel').classList.toggle('hide',!mine);
+ $('statsAllTab').classList.toggle('active',!mine);$('statsMineTab').classList.toggle('active',mine);
+ $('statsAllTab').setAttribute('aria-selected',String(!mine));$('statsMineTab').setAttribute('aria-selected',String(mine));
+ if(mine)renderPersonalStats();
+}
+$('statsAllTab').onclick=()=>selectStatsTab('all');
+$('statsMineTab').onclick=()=>selectStatsTab('mine');
+renderPersonalStats();
+function recordStat(type,key,delta,country=''){recordPersonal(type,key);statOnce(type,key,delta,country).catch(statsError)}
+async function recordAnonymousResponse(modeName,key,target,choice){
+ if(!db||!uid)return;
+ // 같은 제출을 다시 전송해도 중복 생성되지 않도록 결정적 SHA-256 문서 ID 사용.
+ const raw=new TextEncoder().encode(uid+'|'+modeName+'|'+key);
+ const digest=await crypto.subtle.digest('SHA-256',raw);
+ const id=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+ const ref=doc(db,'stats',statsDay(),'responses',id);
+ await setDoc(ref,{target,choice,mode:modeName,correct:target===choice,createdAt:serverTimestamp()});
+}
+function recordAnswer(modeName,key,q,answer){
+ if(!q?.target||!answer)return;
+ const wrong=answer!==q.target;
+ recordStat('answer',modeName+'_'+key,{answers:increment(1),correct:increment(wrong?0:1),wrongCount:increment(wrong?1:0),__wrongNumeric:wrong?1:0},q.target);
+ recordAnonymousResponse(modeName,key,q.target,answer).catch(e=>console.warn('익명 학습 분석 저장 실패',e));
+}
+function startStats(){if(!db||!uid)return;const day=statsDay();if(statsDayLoaded===day)return;statsUnsubs.forEach(f=>f());statsUnsubs=[];statsDayLoaded=day;
+ $('statsDate').textContent=day;
+ const daily=doc(db,'stats',day);
+ statsUnsubs.push(onSnapshot(daily,s=>{const v=s.data()||{};$('statVisitors').textContent=(v.visitorsV2||0).toLocaleString()+'대';$('statBattles').textContent=(v.battles||0).toLocaleString()+'회';$('statPractices').textContent=(v.practices||0).toLocaleString()+'회';$('statAccuracy').textContent='오늘의 전체 정답률: '+(v.answers?((v.correct||0)/v.answers*100).toFixed(1)+'%':'아직 응답이 없어요')},statsError));
+ statsUnsubs.push(onSnapshot(collection(db,'stats',day,'countries'),s=>{
+  const rows=s.docs.map(x=>({country:x.id,...x.data()})).filter(x=>(x.total||0)>=5).sort((a,b)=>(b.wrong/b.total)-(a.wrong/a.total)||b.total-a.total).slice(0,3);
+  const wrap=$('statWrongList');wrap.replaceChildren();if(!rows.length){wrap.textContent='5회 이상 출제된 국가가 쌓이면 순위를 보여줘요.';return}
+  for(const [i,r] of rows.entries()){
+   const line=document.createElement('p');line.textContent=(i+1)+'. '+(names[r.country]||r.country)+' · 오답률 '+Math.round(r.wrong/r.total*100)+'% ('+r.total+'회)';
+   const bar=document.createElement('div');bar.className='bar';const fill=document.createElement('i');fill.style.width=Math.round(r.wrong/r.total*100)+'%';bar.append(fill);wrap.append(line,bar)
+  }
+ },statsError));
+ // 하루 한 번의 익명 계정 접속: 동일 브라우저 인증 UID 기준 추정치.
+ recordStat('visit',stableBrowserId,{visitorsV2:increment(1)});
+}
+
+const regions=['전 세계','아시아 전체','서남아시아','중앙 및 남부아시아','동남 및 동북아시아','유럽','앵글로 아메리카','아프리카','라틴아메리카','오세아니아'];
+// 원본 GeoJSON에서 실제로 존재하는 국가만 각 권역의 문제 후보로 사용합니다.
+const asiaSubregions={
+ '서남아시아':['Turkey','Cyprus','Georgia','Armenia','Azerbaijan','Iran','Iraq','Syria','Lebanon','Israel','Jordan','Saudi Arabia','Yemen','Oman','United Arab Emirates','Qatar','Bahrain','Kuwait'],
+ '중앙 및 남부아시아':['Kazakhstan','Uzbekistan','Turkmenistan','Kyrgyzstan','Tajikistan','Afghanistan','Pakistan','India','Nepal','Bhutan','Bangladesh','Sri Lanka','Maldives'],
+ '동남 및 동북아시아':['China','Mongolia','Japan','South Korea','North Korea','Taiwan','Myanmar','Thailand','Laos','Cambodia','Vietnam','Malaysia','Singapore','Indonesia','Philippines','Brunei','Timor-Leste']
+};
+const allAsia=[...new Set(Object.values(asiaSubregions).flat())];
+
+for(const id of ['region','practiceRegion'])for(const r of regions){const o=document.createElement('option');o.textContent=r;$(id).appendChild(o)}
+for(const id of ['count','practiceCount'])for(let n=5;n<=100;n+=5){const o=document.createElement('option');o.value=n;o.textContent=n+'문제';if(n===(id==='count'?5:10))o.selected=true;$(id).appendChild(o)}
+const BOOKMARK_KEY='geo-battle-bookmarks-v1';
+function loadBookmarks(){try{const value=JSON.parse(localStorage.getItem(BOOKMARK_KEY)||'[]');return Array.isArray(value)?value.filter(v=>typeof v==='string'):[]}catch{return []}}
+let bookmarkedCountries=new Set(loadBookmarks());
+// 북마크는 국가명뿐 아니라 마지막 실제 응답도 브라우저에 함께 보관합니다.
+const BOOKMARK_ANSWERS_KEY='geo-battle-bookmark-answers-v1';
+function loadBookmarkAnswers(){try{const v=JSON.parse(localStorage.getItem(BOOKMARK_ANSWERS_KEY)||'{}');return v&&typeof v==='object'&&!Array.isArray(v)?v:{}}catch{return {}}}
+let bookmarkAnswers=loadBookmarkAnswers();
+function rememberAnswer(q,choice){
+ if(!q?.target||!choice)return;
+ if(!bookmarkedCountries.has(q.target))return;
+ bookmarkAnswers[q.target]={choice,at:Date.now()};
+ try{localStorage.setItem(BOOKMARK_ANSWERS_KEY,JSON.stringify(bookmarkAnswers))}catch(e){console.warn('북마크 답안 저장 실패',e)}
+}
+function lastAnswerFor(country){
+ const recent=[...reviewHistory].reverse().find(x=>x.q?.target===country&&x.choice);
+ if(recent)return recent.choice;
+ if(mode==='online'&&room?.questions){for(let i=room.questions.length-1;i>=0;i--)if(room.questions[i]?.target===country&&answerCache.has(i))return answerCache.get(i)}
+ return bookmarkAnswers[country]?.choice||'';
+}
+
+function hasBookmark(country){return bookmarkedCountries.has(country)}
+function saveBookmarks(){try{localStorage.setItem(BOOKMARK_KEY,JSON.stringify([...bookmarkedCountries]));$('bookmarkCount').textContent='('+bookmarkedCountries.size+')';return true}catch(e){alert('북마크를 저장하지 못했어요. 브라우저 저장 공간이나 시크릿 모드를 확인해 주세요.');return false}}
+function toggleBookmark(country){
+ if(hasBookmark(country)){bookmarkedCountries.delete(country);delete bookmarkAnswers[country]}
+ else{bookmarkedCountries.add(country);const choice=lastAnswerFor(country);if(choice)bookmarkAnswers[country]={choice,at:Date.now()}}
+ try{localStorage.setItem(BOOKMARK_ANSWERS_KEY,JSON.stringify(bookmarkAnswers))}catch(e){console.warn('북마크 답안 저장 실패',e)}
+ saveBookmarks();return hasBookmark(country)
+}
+let db,uid='',roomId='',room=null,people=[],isHost=false,mode='none',myName='',unsubs=[],submittedRound=-1,submittedAnswer='',practiceState=null,transitionBusy=false,reviewHistory=[],reviewSource="practice",clockOffset=0,clockReady=false,lastViewKey="",lastClockSync=0,lastRoundSerial=0;
+const names={...(CONFIG.names||{}),...{"Tajikistan": "타지키스탄", "Kyrgyzstan": "키르기스스탄", "Turkmenistan": "투르크메니스탄", "Uzbekistan": "우즈베키스탄", "Kazakhstan": "카자흐스탄", "Azerbaijan": "아제르바이잔", "Armenia": "아르메니아", "Georgia": "조지아", "Cyprus": "키프로스", "Brunei": "브루나이", "Timor-Leste": "동티모르", "Bhutan": "부탄", "Maldives": "몰디브", "Qatar": "카타르", "Bahrain": "바레인", "Kuwait": "쿠웨이트", "Oman": "오만", "Yemen": "예멘", "Syria": "시리아", "Lebanon": "레바논", "Jordan": "요르단", "Palestine": "팔레스타인", "Afghanistan": "아프가니스탄", "Iraq": "이라크", "Iran": "이란", "Pakistan": "파키스탄", "Nepal": "네팔", "Bangladesh": "방글라데시", "Sri Lanka": "스리랑카", "Mongolia": "몽골", "Myanmar": "미얀마", "Laos": "라오스", "Cambodia": "캄보디아", "Vietnam": "베트남", "Thailand": "태국", "Malaysia": "말레이시아", "Singapore": "싱가포르", "Indonesia": "인도네시아", "Philippines": "필리핀", "Turkey": "튀르키예", "United Arab Emirates": "아랍에미리트", "Saudi Arabia": "사우디아라비아", "North Korea": "북한", "South Korea": "대한민국", "Taiwan": "대만", "China": "중국", "Japan": "일본", "India": "인도"}}, featureByName=new Map(GEO.features.map(f=>[f.properties.name,f]));
+const EXCLUDED_QUIZ_AREAS=new Set(['Palestine','W. Sahara','Somaliland','N. Cyprus','Falkland Is.','Fr. S. Antarctic Lands','Greenland','New Caledonia','Puerto Rico','Antarctica']);
+const quizCountry=n=>!EXCLUDED_QUIZ_AREAS.has(n);
+const pool=region=>region==='전 세계'?GEO.features.map(f=>f.properties.name):region==='아시아 전체'?allAsia:(asiaSubregions[region]||CONFIG.regions[region]||[]);
+const bounds={...CONFIG.bounds,'전 세계':[-180,180,-58,85],
+ '아시아 전체':CONFIG.bounds['아시아']||[25,150,-12,60],
+ '서남아시아':[18,73,2,50],
+ '중앙 및 남부아시아':[52,107,-4,60],
+ '동남 및 동북아시아':[87,157,-17,60]};
+function koName(name){return names[name]||name}
+function randomInt(max){if(max<=1)return 0;const bound=Math.floor(4294967296/max)*max;const a=new Uint32Array(1);let n;do{crypto.getRandomValues(a);n=a[0]}while(n>=bound);return n%max}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=randomInt(i+1);[b[i],b[j]]=[b[j],b[i]]}return b}
+function bbox(f){let xs=[],ys=[];function visit(v){if(typeof v[0]==='number'){xs.push(v[0]);ys.push(v[1])}else v.forEach(visit)}visit(f.geometry.coordinates);return [Math.min(...xs),Math.max(...xs),Math.min(...ys),Math.max(...ys)]}
+// 모든 난이도에서 출제 대상 국가는 동일합니다. 난이도는 오답 선지의 지역적 유사도로만 구분합니다.
+function candidates(region){return [...new Set(pool(region))].filter(n=>featureByName.has(n)&&quizCountry(n))}
+function countryCenter(n){const b=bbox(featureByName.get(n));return [(b[0]+b[1])/2,(b[2]+b[3])/2]}
+function geoDistance(a,b){const [x,y]=countryCenter(a),[u,v]=countryCenter(b);const dlon=Math.min(Math.abs(x-u),360-Math.abs(x-u));return Math.hypot(dlon*Math.cos((y+v)*Math.PI/360),y-v)}
+function choiceOptions(target,region,difficulty){
+ const world=candidates('전 세계').filter(n=>n!==target);
+ const targetGroup=targetRegion(target);
+ const same=world.filter(n=>targetRegion(n)===targetGroup);
+ const other=world.filter(n=>targetRegion(n)!==targetGroup);
+ let distractors=[];
+ if(difficulty==='easy'){
+  // 같은 권역은 정답 한 개만: 오답은 다른 권역에서 고릅니다.
+  distractors=shuffle(other).slice(0,3);
+ }else if(difficulty==='hard'){
+  // 주변 국가 우선. 매우 가까운 국가들 중 무작위로 골라 기계적 반복을 피합니다.
+  const near=[...world].sort((a,b)=>geoDistance(target,a)-geoDistance(target,b));
+  distractors=shuffle(near.slice(0,Math.min(9,near.length))).slice(0,3);
+ }else{
+  // 보통: 같은 권역 오답 1~2개, 나머지는 다른 권역.
+  distractors=[...shuffle(same).slice(0,2),...shuffle(other).slice(0,2)].slice(0,3);
+ }
+ if(distractors.length<3)distractors.push(...shuffle(world.filter(n=>!distractors.includes(n))).slice(0,3-distractors.length));
+ return shuffle([target,...distractors]);
+}
+function makeQuestions(region,difficulty,count){
+ const eligible=candidates(region);if(!eligible.length)return [];
+ // 매 판 전체 후보를 새로 섞고, 한 판 안에서는 가능한 한 국가가 중복되지 않게 합니다.
+ let sequence=[];while(sequence.length<count)sequence.push(...shuffle(eligible).slice(0,count-sequence.length));
+ return sequence.map(target=>({target,options:choiceOptions(target,region,difficulty)}));
+}
+function targetRegion(name){for(const r of Object.keys(asiaSubregions))if(asiaSubregions[r].includes(name))return r;
+for(const r of regions.slice(5))if((CONFIG.regions[r]||[]).includes(name))return r;return '전 세계'}
+function mapBounds(r){
+ const raw=bounds[r]||bounds['전 세계'];
+ if(!['서남아시아','중앙 및 남부아시아','동남 및 동북아시아'].includes(r))return raw;
+ let [w,e,s,n]=raw;const mid=(s+n)/2;
+ const cos=Math.cos(mid*Math.PI/180);
+ // 화면의 900:480 비율과 중위도 경선 수렴을 고려하여 지리적 가로·세로 비율을 보존
+ const current=(e-w)*cos/(n-s),desired=900/480;
+ if(current<desired){const span=(n-s)*desired/cos;const center=(w+e)/2;w=center-span/2;e=center+span/2;}
+ else{const span=(e-w)*cos/desired;const center=(s+n)/2;s=center-span/2;n=center+span/2;}
+ return [w,e,s,n];
+}
+function project(pt,r){let [lon,lat]=pt;const [w,e,s,n]=mapBounds(r);if(r==='오세아니아'&&w>=0&&lon<0)lon+=360;return [(lon-w)/(e-w)*900,(n-lat)/(n-s)*480]}
+function ringPath(ring,r){return ring.map((pt,i)=>{const [x,y]=project(pt,r);return (i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)}).join('')+'Z'}
+function draw(target,selectedRegion,svgOverride=null){const r=selectedRegion==='전 세계'?targetRegion(target):selectedRegion;const svg=svgOverride||$('map');svg.replaceChildren();const clip=document.createElementNS('http://www.w3.org/2000/svg','clipPath');const clipId=svgOverride?'review-mapclip-'+Math.random().toString(36).slice(2):'mapclip';clip.id=clipId;const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');rect.setAttribute('width','900');rect.setAttribute('height','480');clip.appendChild(rect);svg.appendChild(clip);for(const f of GEO.features){if(!f.geometry)continue;const g=f.geometry,polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',polys.map(poly=>poly.map(ring=>ringPath(ring,r)).join('')).join(''));p.setAttribute('clip-path','url(#'+clipId+')');const highlighted=f.properties.name===target;p.style.fill=highlighted?'#8c84a4':'#fff';p.style.stroke=highlighted?'#5a477c':'#a1adc0';p.style.strokeWidth=highlighted?'2':'0.7';svg.appendChild(p)}if(!svgOverride)$('mapStatus').textContent=(selectedRegion==='전 세계'?'전 세계 통합 출제 · '+r+' 확대 지도':r+' 지도')+' · 회색 국가를 찾아보세요!'}
+function show(id,yes){$(id).classList.toggle('hide',!yes)}
+function stage(s){show('questionArea',s==='active'||s==='reveal');show('answerArea',s==='reveal');show('rankArea',s==='ranking'||s==='finished');$('phaseLabel').textContent=({active:'🗺️ 문제 풀기',reveal:'💡 정답 공개',ranking:'🏆 현재 순위',finished:'🎊 최종 순위'})[s]||'대기 중'}
+function renderFinalRanking(){
+ const sorted=[...people].sort((a,b)=>(b.score||0)-(a.score||0)||(b.correctCount||0)-(a.correctCount||0));
+ const winner=sorted[0],announcement=$('winnerAnnouncement');announcement.replaceChildren();
+ if(winner){
+  const heading=document.createElement('div');heading.className='winnerName';heading.textContent='🏆 1등은 '+(winner.name||'학생')+' 입니다!';
+  const praise=document.createElement('div');praise.className='winnerPraise';praise.textContent='당신은 지리 천재!';
+  const stats=document.createElement('div');stats.className='winnerStats';stats.textContent=(winner.correctCount||0)+'/'+(room?.questions?.length||0)+'개 정답, '+(winner.score||0).toLocaleString()+'점';
+  announcement.append(heading,praise,stats);
+ }else announcement.textContent='참가자 순위를 불러오는 중이에요.';
+ const body=$('finalRanking');body.replaceChildren();
+ sorted.forEach((p,i)=>{const tr=document.createElement('tr');if(i===0)tr.className='me';for(const v of [i+1,p.name||'학생',(p.score||0).toLocaleString()+'점',(p.correctCount||0)+'개']){const td=document.createElement('td');td.textContent=v;tr.appendChild(td)}body.appendChild(tr)});
+}
+function rankRows(list){const tbody=$('ranking');tbody.replaceChildren();[...list].sort((a,b)=>(b.score||0)-(a.score||0)||(b.correctCount||0)-(a.correctCount||0)).forEach((p,i)=>{const tr=document.createElement('tr');if(p.uid===uid)tr.className='me';for(const v of [i+1,p.name||'학생',(p.score||0).toLocaleString()+'점',(p.correctCount||0)+'개']){const td=document.createElement('td');td.textContent=v;tr.appendChild(td)}tbody.appendChild(tr)})}
+function drawChoices(q,phase,chosen,answerFn,disabled){$('choices').replaceChildren();for(const opt of q.options){const b=document.createElement('button');b.textContent=names[opt]||opt;if(phase==='reveal'&&opt===q.target)b.classList.add('correct');if(phase==='reveal'&&chosen===opt&&opt!==q.target)b.classList.add('wrong');b.disabled=disabled||phase!=='active';b.onclick=()=>answerFn(opt);$('choices').appendChild(b)}}
+function showQuestion(q,region,phase,chosen,answerFn,disabled){draw(q.target,region);drawChoices(q,phase,chosen,answerFn,disabled);$('answerText').textContent='정답은 '+(names[q.target]||q.target)+'! 🎉';$('myAnswer').textContent=chosen?'내가 고른 답: '+(names[chosen]||chosen)+(chosen===q.target?' · 정답! 💜':' · 다음에는 맞힐 수 있어요 🌷'):''}
+function clean(){unsubs.forEach(u=>u());unsubs=[]}
+function inviteUrl(){const u=new URL(location.href);u.searchParams.set('room',roomId);return u.href}
+const ACTIVE_MS=10000,REVEAL_MS=3000,RANK_MS=5000,ROUND_MS=ACTIVE_MS+REVEAL_MS+RANK_MS;
+function stampMillis(v){return typeof v==='number'?v:v?.toMillis?.()??0}
+function serverNow(){return Date.now()+clockOffset}
+function roundTimeline(){
+  const start=stampMillis(room?.startAt),early=room?.earlyEnds||{};
+  let cursor=start;const result=[];
+  for(let i=0;i<(room?.questions?.length||0);i++){
+    const activeEnd=Math.min(cursor+ACTIVE_MS,Math.max(cursor+1000,Number(early[i])||cursor+ACTIVE_MS));
+    result.push({start:cursor,activeEnd,revealEnd:activeEnd+REVEAL_MS,end:activeEnd+REVEAL_MS+(i===(room?.questions?.length||0)-1?1000:RANK_MS)});
+    cursor=result[result.length-1].end;
+  }
+  return result;
+}
+function onlineState(){
+ if(!room)return null;
+ if(room.phase==='waiting'||room.phase==='finished')return {phase:room.phase,round:room.round,remaining:0};
+ const start=stampMillis(room.startAt);if(!start)return {phase:'waiting',round:0,remaining:0};
+ const now=serverNow();if(now<start)return {phase:'countdown',round:0,remaining:start-now};
+ const timeline=roundTimeline();for(let i=0;i<timeline.length;i++){
+   const t=timeline[i];if(now<t.end){const phase=now<t.activeEnd?'active':now<t.revealEnd?'reveal':'ranking';return {phase,round:i,remaining:(phase==='active'?t.activeEnd:phase==='reveal'?t.revealEnd:t.end)-now};}
+ }
+ return {phase:'finished',round:Math.max(0,timeline.length-1),remaining:0};
+}
+function onlineReviewHistory(){return (room?.questions||[]).map((q,i)=>({q,choice:answerCache.get(i)||'',round:i}));}
+const answerCache=new Map();let fastAdvanceBusy=false;
+let settingsSaving=false;let settingsQueue=Promise.resolve();let readyPending=false;let readyOptimistic=false;
+function render(){if(mode!=='online'||!room||!$('review').classList.contains('hide'))return;show('gameHome',true);show('practiceNextArea',false);show('practiceBookmarkArea',false);const state=onlineState();show('setup',false);show('practiceConfig',false);show('lobby',state.phase==='waiting'||state.phase==='countdown');document.body.classList.toggle('playing',state.phase==='active'||state.phase==='reveal'||state.phase==='ranking');show('controls',isHost&&room.phase==='waiting');$('roomCode').textContent=roomId;$('players').textContent='참가자 '+people.length+'명 · '+people.map(p=>(p.uid===room.hostUid?'👑 ':'')+p.name+(p.ready?' ✅':' ⏳')+(p.continueChoice==='stay'?' 🔄':'')).join(' · ');if(isHost&&room.phase==='waiting'){if(!settingsSaving){$('region').value=room.region||'전 세계';$('difficulty').value=room.difficulty||'easy';$('count').value=String(room.count||5)}}const mine=people.find(p=>p.uid===uid);
+const myReady=!!mine?.ready||(room.readyIds||[]).includes(uid)||readyOptimistic;
+$('readyBtn').textContent=readyPending?'⏳ 준비 반영 중…':myReady?'✅ 준비 완료':'🙋 준비하기';
+$('readyBtn').disabled=readyPending||myReady||room.phase!=='waiting'||!mine||!!room.startAt;
+$('readyBtn').setAttribute('aria-pressed',String(myReady));
+if(myReady&&!readyPending)readyOptimistic=false;$('lobbyStatus').textContent=room.phase==='waiting'?(room.startAt?'3초 후 게임 시작!':`준비 완료 ${people.filter(p=>p.ready||(room.readyIds||[]).includes(p.uid)).length}/${people.length}명 · 2명 이상 전원 준비 시 자동 시작`):room.phase==='finished'?'이번 판 종료 · 이어하기 또는 끝내기를 선택해 주세요.':'게임 진행 중';show('readyBtn',room.phase==='waiting');show('leaveRoom',room.phase==='waiting');show('lobbyReview',room.phase==='waiting'&&reviewHistory.length>0);show('onlineReviewBtn',false);show('onlineDone',state.phase==='finished');if(state.phase==='finished'&&room.phase!=='finished')markFinished().catch(console.warn);if(state.phase==='finished'&&room.questions?.length){reviewHistory=onlineReviewHistory();const reviewKey=roomId+':'+stampMillis(room.startAt)+':'+room.questions.length+':'+answerCache.size;if($('inlineReview').dataset.key!==reviewKey){$('inlineReview').dataset.key=reviewKey;renderReview(false,$('inlineReviewCards'));}}if(state.phase==='finished'){$('quitBtn').disabled=false;if($('quitBtn').textContent==='퇴장 처리 중…')$('quitBtn').textContent='🚪 끝내기';renderFinalRanking();$('continueBtn').disabled=mine?.continueChoice==='stay';$('onlineDoneStatus').textContent='현재 참가자 '+people.length+'명 · 이어하기 '+people.filter(p=>p.continueChoice==='stay').length+'명';}if(state.phase==='waiting'||state.phase==='countdown'){show('onlineDone',false);show('game',false);show('review',false);if(state.phase==='countdown')$('lobbyStatus').textContent='모두 준비 완료! '+Math.ceil(state.remaining/1000)+'초 후 시작 🎉';return;}if(state.phase==='finished'){show('game',false);show('onlineDone',true);return;}show('game',true);if(!state)return;const q=room.questions?.[state.round];if(!q)return;const key=roomId+':'+stampMillis(room.startAt)+':'+state.round+':'+state.phase;const changed=key!==lastViewKey;if(changed){lastViewKey=key;show('review',false);$('round').textContent='ROUND '+(state.round+1)+' / '+room.questions.length+' · '+room.region;stage(state.phase);show('gameHome',true);show('practiceNextArea',false);if(state.phase==='active'||state.phase==='reveal'){showQuestion(q,room.region,state.phase,answerCache.get(state.round)||'',submit,answerCache.has(state.round)||state.phase!=='active');$('feedback').textContent=state.phase==='active'?(answerCache.has(state.round)?'응답 제출 완료! 💜':'정답을 선택해요!'):''}rankRows(people);if(state.phase==='finished'){show('game',false);show('onlineDone',true);}}tickDisplay();}
+function tickDisplay(){if(mode!=='online'||!room||!$('review').classList.contains('hide'))return;const st=onlineState();if(!st)return;const before=lastViewKey;renderIfChanged(st);show('timer',st.phase==='active'||st.phase==='countdown');$('timer').textContent=st.phase==='countdown'?'시작 '+Math.ceil(st.remaining/1000):Math.max(0,st.remaining/1000).toFixed(1)+'초';document.querySelectorAll('#choices button').forEach(b=>b.disabled=st.phase!=='active'||answerCache.has(st.round))}
+function renderIfChanged(st){const key=roomId+':'+stampMillis(room.startAt)+':'+st.round+':'+st.phase;if(lastViewKey!==key)render()}
+async function syncClock(){if(mode!=='online'||!db||!uid||!roomId)return;try{const ref=doc(db,'rooms',roomId,'players',uid);const t0=Date.now();await updateDoc(ref,{clockPingAt:serverTimestamp()});const snap=await getDoc(ref);const t1=Date.now();const server=stampMillis(snap.data()?.clockPingAt);if(server){const offset=server-(t0+t1)/2;if(!clockReady||Math.abs(offset-clockOffset)<3000){clockOffset=offset;clockReady=true;lastClockSync=Date.now()}}}catch(e){console.warn('시간 동기화 실패',e)}}
+async function attach(id){clean();readyPending=false;readyOptimistic=false;roomId=id;lastRoundSerial=0;answerCache.clear();lastViewKey='';const ref=doc(db,'rooms',id);const snap=await getDoc(ref);if(!snap.exists())throw Error('게임방을 찾을 수 없어요.');isHost=snap.data().hostUid===uid;mode='online';unsubs.push(onSnapshot(ref,s=>{if(s.exists()){room=s.data();if(room.phase==='active'&&room.roundSerial)recordBattleStart(id,room.roundSerial);if(room.roundSerial!==lastRoundSerial){answerCache.clear();lastRoundSerial=room.roundSerial||0;lastViewKey='';try{const old=JSON.parse(localStorage.getItem('geobattle_'+roomId+'_'+lastRoundSerial+'_'+uid)||'{}');for(const [k,v] of Object.entries(old))answerCache.set(Number(k),v)}catch{}}isHost=room.hostUid===uid;render();if(room.phase==='waiting')maybeStart().catch(console.warn);if(room.phase==='active'&&isHost)maybeFastAdvance().catch(console.warn)}else if(mode==='online'&&roomId===id){alert('게임방이 종료되었어요.');localHome()}}));unsubs.push(onSnapshot(collection(db,'rooms',id,'answers'),()=>{if(room?.phase==='active'&&isHost)maybeFastAdvance().catch(console.warn)}));unsubs.push(onSnapshot(collection(db,'rooms',id,'players'),s=>{people=s.docs.map(x=>({uid:x.id,...x.data()}));render();if(room?.phase==='waiting')maybeStart().catch(console.warn);if(room?.phase==='active'&&isHost)maybeFastAdvance().catch(console.warn)}));try{const old=JSON.parse(localStorage.getItem('geobattle_'+roomId+'_'+(room?.roundSerial||0)+'_'+uid)||'{}');for(const [k,v] of Object.entries(old))answerCache.set(Number(k),v)}catch{}/* 방 상태/참가자 트랜잭션 충돌 방지를 위해 시계 동기화 쓰기 생략 */}
+function recordBattleStart(id,serial){const key=id+'_'+serial;if(statsStarted.has(key))return;statsStarted.add(key);recordStat('battle',key,{battles:increment(1)})}
+function friendlyError(e){const m=e?.message||String(e);return /permission-denied|Missing or insufficient permissions/i.test(m)?'Firebase 접근 권한 오류입니다. 최신 rules.firestore 게시 여부와 Firebase 프로젝트를 확인해 주세요.':m}
+function notify(s,error=false){$('notice').textContent=s;$('notice').classList.toggle('error',error)}
+function requireOnline(){if(!db||!uid)throw Error('Firebase 연결이 아직 완료되지 않았어요. 연습 모드는 바로 사용할 수 있어요.')}
+const FOUR_DIGITS=()=>String(Math.floor(Math.random()*10000)).padStart(4,'0');
+async function createRoom(){requireOnline();myName=$('nick').value.trim();if(!myName){$('nick').focus();throw Error('방을 만들려면 닉네임을 반드시 입력해 주세요.');}for(let attempt=0;attempt<30;attempt++){const id=FOUR_DIGITS(),ref=doc(db,'rooms',id);try{await runTransaction(db,async tx=>{const old=await tx.get(ref);if(old.exists())throw Error('CODE_TAKEN');tx.set(ref,{hostUid:uid,phase:'waiting',round:-1,region:'전 세계',difficulty:'easy',count:5,questions:[],startAt:0,createdAt:serverTimestamp(),everStarted:false,roundSerial:0,members:[uid],readyIds:[],stayIds:[]});tx.set(doc(db,'rooms',id,'players',uid),{name:myName,ready:false,score:0,correctCount:0,continueChoice:'',joinedAt:serverTimestamp()})});await attach(id);return}catch(e){if(e.message==='CODE_TAKEN')continue;throw e}}throw Error('사용 가능한 방 코드를 찾지 못했어요. 다시 시도해 주세요.')}
+$('create').onclick=async()=>{try{await createRoom()}catch(e){notify(friendlyError(e),true)}};
+$('join').onclick=async()=>{try{requireOnline();myName=$('nick').value.trim();if(!myName){$('nick').focus();throw Error('입장하려면 닉네임을 입력해 주세요.');}const id=prompt('게임방 코드 숫자 4자리를 입력해 주세요',new URL(location.href).searchParams.get('room')||'');if(!id)return;const rid=id.trim();if(!/^\d{4}$/.test(rid))throw Error('숫자 4자리를 입력해 주세요.');const ref=doc(db,'rooms',rid),pref=doc(db,'rooms',rid,'players',uid);await runTransaction(db,async tx=>{const [r,p]=await Promise.all([tx.get(ref),tx.get(pref)]);if(!r.exists())throw Error('게임방을 찾을 수 없어요.');const data=r.data();if(data.phase!=='waiting'||data.startAt)throw Error('게임 중이거나 시작 직전이에요. 다음 판에 입장해 주세요.');if(p.exists())throw Error('이미 참가 중이에요.');tx.update(ref,{members:[...(data.members||[]),uid]});tx.set(pref,{name:myName,ready:false,score:0,correctCount:0,continueChoice:'',joinedAt:serverTimestamp()})});await attach(rid)}catch(e){notify(friendlyError(e),true)}};
+function roomEndMillis(data){let t=stampMillis(data.startAt);const early=data.earlyEnds||{};for(let i=0;i<(data.questions||[]).length;i++){const end=Math.min(t+ACTIVE_MS,Math.max(t+1000,Number(early[i])||t+ACTIVE_MS));t=end+REVEAL_MS+(i===(data.questions||[]).length-1?1000:RANK_MS);}return t;}
+async function markFinished(){if(!roomId)return;const ref=doc(db,'rooms',roomId);await runTransaction(db,async tx=>{const r=await tx.get(ref);if(r.exists()&&r.data().phase==='active'&&serverNow()>=roomEndMillis(r.data()))tx.update(ref,{phase:'finished'})})}
+async function maybeStart(){if(!isHost)return;await settingsQueue.catch(()=>{});if(mode!=='online'||!roomId||!room||room.phase!=='waiting'||room.startAt)return;const ref=doc(db,'rooms',roomId);await runTransaction(db,async tx=>{const r=await tx.get(ref);if(!r.exists())return;const data=r.data(),members=data.members||[],ready=data.readyIds||[];if(data.phase!=='waiting'||data.startAt||members.length<2||!members.every(id=>ready.includes(id)))return;const qs=makeQuestions(data.region||'전 세계',data.difficulty||'easy',data.count||5);if(!qs.length)throw Error('문제를 생성할 수 없어요.');tx.update(ref,{phase:'active',questions:qs,startAt:Timestamp.fromMillis(Date.now()+clockOffset+3000),everStarted:true,roundSerial:(data.roundSerial||0)+1,earlyEnds:{}})})}
+async function toggleReady(){
+ if(readyPending||readyOptimistic||(room?.readyIds||[]).includes(uid)||people.some(p=>p.uid===uid&&p.ready))return;
+ if(mode!=='online'||!roomId||room?.phase!=='waiting'||room.startAt)return;
+ readyPending=true;readyOptimistic=true;
+ const button=$('readyBtn');button.disabled=true;button.textContent='⏳ 준비 반영 중…';
+ const id=roomId,ref=doc(db,'rooms',id),pref=doc(db,'rooms',id,'players',uid);
+ try{
+  // 별도 읽기 트랜잭션 대신 독립 필드 업데이트: 기기간 트랜잭션 충돌 감소.
+  // 플레이어 문서를 먼저 갱신해 참여자 화면에 즉시 준비 완료를 표시한다.
+  await updateDoc(pref,{ready:true});
+  await updateDoc(ref,{readyIds:arrayUnion(uid)});
+  if(roomId===id){readyPending=false;render();if(isHost)maybeStart().catch(console.warn);}
+ }catch(e){
+  readyPending=false;readyOptimistic=false;
+  if(roomId===id){render();$('lobbyStatus').textContent='준비 반영 실패: '+friendlyError(e);}
+  throw e;
+ }
+}
+$('readyBtn').onclick=async()=>{
+ if(readyPending||readyOptimistic)return;
+ try{await toggleReady()}catch(e){console.warn('준비 실패',e)}
+};
+// 변경 즉시 Firestore에 반영한다. 별도 '설정 적용' 절차가 없다.
+function autoSaveSettings(){
+  if(!isHost||!roomId||room?.phase!=='waiting'||room?.startAt)return;
+  const id=roomId;
+  const settings={region:$('region').value,difficulty:$('difficulty').value,count:Number($('count').value)};
+  settingsSaving=true;
+  $('settingsStatus').textContent='설정 저장 중…';
+  settingsQueue=settingsQueue.catch(()=>{}).then(async()=>{
+    if(roomId!==id)return;
+    // 준비/입장 트랜잭션과 별도로 필드만 업데이트하여 다른 데이터를 덮어쓰지 않는다.
+    await updateDoc(doc(db,'rooms',id),settings);
+    $('settingsStatus').textContent='설정이 자동 저장됐어요 ✓';
+  }).catch(e=>{$('settingsStatus').textContent='설정 저장 실패: '+friendlyError(e);})
+    .finally(()=>{settingsSaving=false;});
+}
+for(const key of ['region','difficulty','count'])$(key).addEventListener('change',autoSaveSettings);
+
+async function leaveRoom(){
+ if(mode!=='online'||!roomId)return;
+ const id=roomId,ref=doc(db,'rooms',id),pref=doc(db,'rooms',id,'players',uid);
+ // 방장 권한 양도와 참가자 퇴장을 한 번의 트랜잭션으로 처리
+ await runTransaction(db,async tx=>{
+  const [r,p]=await Promise.all([tx.get(ref),tx.get(pref)]);
+  if(!r.exists())return;
+  const data=r.data(),members=(data.members||[]).filter(x=>x!==uid);
+  if(p.exists())tx.delete(pref);
+  if(!members.length)tx.delete(ref);
+  else{
+   const update={members,readyIds:(data.readyIds||[]).filter(x=>x!==uid),stayIds:(data.stayIds||[]).filter(x=>x!==uid)};
+   if(data.hostUid===uid)update.hostUid=members[0];
+   tx.update(ref,update);
+  }
+ },{maxAttempts:5});
+ localHome();
+}
+async function exitWithFeedback(button){
+ if(button.disabled)return;
+ button.disabled=true;const original=button.textContent;button.textContent='퇴장 처리 중…';
+ try{await leaveRoom()}catch(e){button.disabled=false;button.textContent=original;alert('퇴장 처리 실패: '+friendlyError(e)+'\\n잠시 후 다시 시도해 주세요.');}
+}
+$('leaveRoom').onclick=()=>{if(confirm('이 방에서 나갈까요?'))exitWithFeedback($('leaveRoom'))};
+$('quitBtn').onclick=()=>exitWithFeedback($('quitBtn'));
+$('continueBtn').onclick=async()=>{const b=$('continueBtn');b.disabled=true;try{await markFinished();await runTransaction(db,async tx=>{const ref=doc(db,'rooms',roomId),p=doc(db,'rooms',roomId,'players',uid);const [r,player]=await Promise.all([tx.get(ref),tx.get(p)]);if(!r.exists()||!player.exists()||r.data().phase!=='finished')throw Error('지금은 이어하기를 선택할 수 없어요.');tx.update(ref,{stayIds:[...new Set([...(r.data().stayIds||[]),uid])]});tx.update(p,{continueChoice:'stay',ready:false})});await resetForNextGame()}catch(e){alert(friendlyError(e));b.disabled=false}};
+async function resetForNextGame(){if(!roomId)return;const ref=doc(db,'rooms',roomId);await runTransaction(db,async tx=>{const r=await tx.get(ref);if(!r.exists()||r.data().phase!=='finished')return;const members=r.data().members||[],stay=r.data().stayIds||[];if(!members.length||!members.every(id=>stay.includes(id)))return;tx.update(ref,{phase:'waiting',startAt:0,questions:[],round:-1,readyIds:[],stayIds:[],earlyEnds:{}})});answerCache.clear();lastViewKey=''}
+$('lobbyReview').onclick=()=>openReview('online');
+
+async function maybeFastAdvance(){
+ if(fastAdvanceBusy||!isHost||!room||room.phase!=='active'||!roomId)return;
+ const state=onlineState();if(state?.phase!=='active'||!people.length)return;
+ fastAdvanceBusy=true;
+ try{
+  const id=roomId,serial=room.roundSerial||0,round=state.round;
+  await runTransaction(db,async tx=>{
+   const ref=doc(db,'rooms',id),rs=await tx.get(ref);if(!rs.exists())return;
+   const data=rs.data();if(data.phase!=='active'||data.roundSerial!==serial||data.earlyEnds?.[round])return;
+   const members=data.members||[];if(members.length<1)return;
+   const answerRefs=members.map(memberId=>doc(db,'rooms',id,'answers',serial+'_'+round+'_'+memberId));
+   const snaps=await Promise.all(answerRefs.map(a=>tx.get(a)));
+   if(snaps.some(a=>!a.exists()))return;
+   let cursor=stampMillis(data.startAt);for(let i=0;i<round;i++){const e=data.earlyEnds?.[i];cursor=Math.min(cursor+ACTIVE_MS,Math.max(cursor+1000,Number(e)||cursor+ACTIVE_MS))+REVEAL_MS+(i===(data.questions||[]).length-1?1000:RANK_MS);}const t={start:cursor,activeEnd:cursor+ACTIVE_MS};if(serverNow()>=t.activeEnd)return;
+   const cutoff=Math.max(t.start+1000,Math.min(serverNow()+250,t.activeEnd));
+   tx.update(ref,{['earlyEnds.'+round]:cutoff});
+  });
+ }finally{fastAdvanceBusy=false;}
+}
+async function submit(answer){if(mode!=='online'||!room)return;const st=onlineState();if(st.phase!=='active'||answerCache.has(st.round))return;const round=st.round,q=room.questions[round];answerCache.set(round,answer);rememberAnswer(q,answer);try{localStorage.setItem('geobattle_'+roomId+'_'+(room?.roundSerial||0)+'_'+uid,JSON.stringify(Object.fromEntries(answerCache)))}catch{}lastViewKey='';render();const elapsed=Math.max(0,ACTIVE_MS-st.remaining),correct=answer===q.target,points=correct?Math.round(500+500*Math.max(0,1-elapsed/10000)):0;try{const pref=doc(db,'rooms',roomId,'players',uid),aref=doc(db,'rooms',roomId,'answers',(room.roundSerial||0)+'_'+round+'_'+uid);await runTransaction(db,async tx=>{const [a,p]=await Promise.all([tx.get(aref),tx.get(pref)]);if(a.exists())throw Error('이미 제출한 문제예요.');if(!p.exists())throw Error('참가자 정보가 없어요.');tx.set(aref,{uid,round,answer,points,correct,submittedAt:serverTimestamp()});tx.update(pref,{score:(p.data().score||0)+points,correctCount:(p.data().correctCount||0)+(correct?1:0)})});recordAnswer('battle',roomId+'_'+(room.roundSerial||0)+'_'+round+'_'+uid,q,answer);if(isHost)maybeFastAdvance().catch(console.warn)}catch(e){$('feedback').textContent='제출 오류: '+e.message}}
+// 진행 화면은 Firebase에 저장된 공통 시작 시각을 기준으로 모든 기기에서 독립 계산합니다.
+setInterval(()=>{if(statsDayLoaded!==statsDay()){renderPersonalStats();if(db&&uid)startStats();}if(mode==='online'){tickDisplay();if(room?.phase==='finished'&&people.length&&people.every(p=>p.continueChoice==='stay'))resetForNextGame().catch(console.warn);if(Date.now()-lastClockSync>60000&&roomId)syncClock()}else if(mode==='practice')practiceTick()},150);
+function practiceSetup(){document.body.classList.remove('playing');practiceState=null;mode='practice';clean();show('setup',false);show('lobby',false);show('game',false);show('onlineDone',false);show('practiceDone',false);show('practiceConfig',true)}
+function localHome(){document.body.classList.remove('playing');clean();room=null;roomId='';people=[];practiceState=null;mode='none';show('onlineDone',false);show('onlineReviewBtn',false);show('setup',true);for(const id of ['lobby','practiceConfig','practiceDone','game','review','practiceNextArea','practiceBookmarkArea'])show(id,false)}
+async function goHome(){document.body.classList.remove('playing');if(mode==='online'){if(!confirm('게임방에서 나와 홈으로 이동할까요?'))return;try{await leaveRoom()}catch(e){alert('퇴장 실패: '+friendlyError(e));return}return;}practiceState=null;mode='none';show('setup',true);for(const id of ['lobby','practiceConfig','practiceDone','game','review','onlineReviewBtn','practiceNextArea','practiceBookmarkArea'])show(id,false);}
+$('brandHome').onclick=goHome;$('brandHome').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();goHome()}};
+$('practice').onclick=practiceSetup;
+$('home').onclick=goHome;
+$('gameHome').onclick=goHome;
+$('doneHome').onclick=goHome;
+$('again').onclick=practiceSetup;
+$('practiceStart').onclick=()=>{const region=$('practiceRegion').value,difficulty=$('practiceDifficulty').value,questions=makeQuestions(region,difficulty,Number($('practiceCount').value));if(!questions.length){alert('출제 가능한 문제가 없어요.');return}reviewHistory=[];const practiceRunId=statsSession+'_'+Date.now();recordStat('practice',practiceRunId,{practices:increment(1)});practiceState={statsRunId:practiceRunId,region,questions,round:0,phase:'active',correctCount:0,chosen:'',locked:false,phaseAt:0};show('practiceConfig',false);show('practiceDone',false);show('game',true);renderPractice()};
+function updatePracticeBookmark(){const state=practiceState;if(!state)return;const country=state.questions[state.round]?.target;if(!country)return;$('practiceBookmark').textContent=hasBookmark(country)?'⭐ 북마크 해제':'☆ 이 국가 북마크';$('practiceBookmarkStatus').textContent=hasBookmark(country)?'헷갈린 국가로 저장됨':'찍어서 맞혔다면 북마크해 두세요';}
+$('practiceBookmark').onclick=()=>{if(!practiceState)return;toggleBookmark(practiceState.questions[practiceState.round].target);updatePracticeBookmark()};
+function renderPractice(){
+ const state=practiceState;if(!state)return;
+ const q=state.questions[state.round];document.body.classList.add('playing');
+ $('round').textContent='혼자 연습 · '+(state.round+1)+' / '+state.questions.length+'문제';
+ stage(state.phase);show('gameHome',true);show('practiceBookmarkArea',true);
+ show('practiceNextArea',false);show('rankArea',false);show('timer',false);
+ updatePracticeBookmark();
+ showQuestion(q,state.region,state.phase,state.chosen,practiceAnswer,state.locked);
+ $('feedback').textContent=state.phase==='active'?'시간제한 없이 충분히 생각하고 선택하세요. 🌷':(state.chosen===q.target?'정답이에요! 잘했어요 💜':'아쉬워요! 정답을 확인해 보세요. 🌼');
+}
+function practiceAnswer(answer){const state=practiceState;if(!state||state.phase!=='active'||state.locked)return;state.locked=true;state.chosen=answer;const q=state.questions[state.round];if(answer===q.target)state.correctCount++;reviewHistory.push({q,choice:answer,round:state.round});recordAnswer('practice',state.statsRunId+'_'+state.round,q,answer);rememberAnswer(q,answer);state.phase='reveal';state.phaseAt=Date.now();renderPractice();}
+function practiceNext(){const state=practiceState;if(!state||state.phase==='active')return;if(state.round+1>=state.questions.length){document.body.classList.remove('playing');show('game',false);show('practiceBookmarkArea',false);show('practiceDone',true);reviewSource='practice';$('practiceResult').textContent=`${state.questions.length}문제 중 ${state.correctCount}개 정답! (정답률 ${Math.round(state.correctCount/state.questions.length*100)}%) 🌷`;practiceState=null;return;}state.round++;state.phase='active';state.phaseAt=0;state.chosen='';state.locked=false;renderPractice();}
+function practiceTick(){
+ const state=practiceState;if(!state||!$('review').classList.contains('hide'))return;
+ if(state.phase==='reveal'&&Date.now()-state.phaseAt>=REVEAL_MS)practiceNext();
+}
+$('practiceNext').onclick=practiceNext;
+
+const countryFacts={
+'Vietnam':{capital:'하노이',geo:'인도차이나반도 동쪽, 남중국해 연안에 남북으로 길게 뻗어 있어요.',culture:'메콩강·홍강 삼각주의 벼농사 문화가 발달했어요.'},
+'Mongolia':{capital:'울란바토르',geo:'중국과 러시아 사이의 내륙국이며 고원과 초원 지대가 넓어요.',culture:'유목 생활과 게르 주거 문화가 잘 알려져 있어요.'},
+'Japan':{capital:'도쿄',geo:'동아시아 태평양 연안의 섬나라로 환태평양 조산대에 위치해요.',culture:'신토와 불교 전통이 함께 나타나요.'},
+'India':{capital:'뉴델리',geo:'남아시아 인도반도의 대부분을 차지하며 북쪽에 히말라야산맥이 있어요.',culture:'힌두교·이슬람교 등 다양한 종교가 공존해요.'},
+'Brazil':{capital:'브라질리아',geo:'남아메리카 동부의 넓은 국가이며 아마존강 유역을 포함해요.',culture:'포르투갈어가 공용어이며 다양한 문화적 배경이 공존해요.'},
+'Canada':{capital:'오타와',geo:'북아메리카 북부에 위치하고 대서양·태평양·북극해에 접해요.',culture:'영어와 프랑스어가 연방 공용어예요.'},
+'Egypt':{capital:'카이로',geo:'아프리카 북동부에 있으며 나일강과 삼각주에 인구가 집중되어 있어요.',culture:'아랍어가 공용어이며 이슬람 문화의 영향이 커요.'},
+'Australia':{capital:'캔버라',geo:'오세아니아의 대륙 국가로 내륙에 건조 지역이 넓어요.',culture:'원주민 문화와 다양한 이주민 문화가 공존해요.'}
+};
+const countryLandmarks={"Vietnam": "하롱베이 · 호이안 구시가지", "Mongolia": "게르 · 고비 사막", "Japan": "후지산 · 교토의 전통 사찰", "India": "타지마할 · 갠지스강", "Brazil": "리우데자네이루의 거대 예수상 · 아마존 열대림", "Canada": "나이아가라 폭포 · 로키산맥", "Egypt": "기자 피라미드 · 스핑크스", "Australia": "시드니 오페라 하우스 · 울루루", "South Korea": "경복궁 · 한라산", "North Korea": "백두산 · 평양", "China": "만리장성 · 자금성", "Taiwan": "타이베이 101 · 타이루거 협곡", "Thailand": "왓 아룬 · 방콕 왕궁", "Cambodia": "앙코르 와트", "Laos": "루앙프라방 · 꽝시 폭포", "Myanmar": "바간 유적 · 쉐다곤 파고다", "Malaysia": "페트로나스 트윈 타워", "Singapore": "머라이언 · 마리나 베이 샌즈", "Indonesia": "보로부두르 사원 · 발리", "Philippines": "초콜릿 힐 · 팔라완", "Nepal": "에베레스트산 · 카트만두 계곡", "Pakistan": "바드샤히 모스크 · 카라코람산맥", "Bangladesh": "순다르반스 맹그로브 숲", "Sri Lanka": "시기리야 바위 요새", "Saudi Arabia": "메카의 카바 신전 · 마스마크 요새", "United Arab Emirates": "부르즈 할리파 · 셰이크 자이드 그랜드 모스크", "Iran": "페르세폴리스 · 이스파한 이맘 광장", "Iraq": "메소포타미아 유적 · 바빌론 유적", "Israel": "예루살렘 구시가지 · 사해", "Turkey": "아야 소피아 · 카파도키아", "Russia": "붉은 광장 · 바이칼호", "Kazakhstan": "차른 협곡 · 바이테렉 탑", "Uzbekistan": "사마르칸트 레기스탄 광장", "France": "에펠탑 · 몽생미셸", "Germany": "브란덴부르크 문 · 노이슈반슈타인성", "United Kingdom": "빅벤 · 스톤헨지", "Italy": "콜로세움 · 피사의 사탑", "Spain": "사그라다 파밀리아 · 알람브라 궁전", "Portugal": "벨렝탑 · 페나 궁전", "Greece": "아테네 아크로폴리스 · 산토리니", "Switzerland": "마터호른 · 융프라우", "Austria": "쇤브룬 궁전 · 할슈타트", "Netherlands": "풍차 · 암스테르담 운하", "Belgium": "그랑플라스 광장 · 아토미움", "Norway": "피오르 · 오슬로 오페라 하우스", "Sweden": "스톡홀름 감라스탄 · 바사 박물관", "Finland": "오로라 · 수오멘린나 요새", "Iceland": "블루라군 · 게이시르 간헐천", "Denmark": "인어공주상 · 뉘하운", "Poland": "바르샤바 구시가지 · 바벨성", "Czechia": "프라하 카를교 · 프라하성", "Hungary": "부다페스트 국회의사당 · 세체니 온천", "Romania": "브란성 · 카르파티아산맥", "Ukraine": "키이우 성 소피아 대성당 · 카르파티아산맥", "United States of America": "자유의 여신상 · 그랜드 캐니언", "United States": "자유의 여신상 · 그랜드 캐니언", "Mexico": "치첸이트사 · 테오티우아칸", "Cuba": "아바나 구시가지 · 클래식 자동차", "Jamaica": "블루마운틴 · 레게 음악", "Guatemala": "티칼 마야 유적", "Costa Rica": "아레날 화산 · 몬테베르데 운무림", "Panama": "파나마 운하", "Colombia": "카르타헤나 구시가지 · 커피 문화 경관", "Venezuela": "앙헬 폭포 · 테푸이 지형", "Peru": "마추픽추 · 나스카 지상화", "Bolivia": "우유니 소금사막 · 티티카카호", "Chile": "이스터섬 모아이 · 아타카마 사막", "Argentina": "이과수 폭포 · 페리토 모레노 빙하", "Uruguay": "몬테비데오 구시가지 · 푼타델에스테", "Ecuador": "갈라파고스 제도 · 키토 구시가지", "Paraguay": "이타이푸 댐 · 예수회 선교 유적", "South Africa": "테이블마운틴 · 희망봉", "Morocco": "마라케시 메디나 · 사하라 사막", "Algeria": "사하라 사막 · 타실리나제르 암각화", "Tunisia": "카르타고 유적 · 시디부사이드", "Kenya": "마사이마라 보호구역 · 킬리만자로 조망", "Tanzania": "킬리만자로산 · 세렝게티 국립공원", "Ethiopia": "랄리벨라 암굴교회 · 시미엔산맥", "Nigeria": "나이지리아 국립극장 · 오순오쇼그보 숲", "Ghana": "케이프코스트 성 · 카쿰 국립공원", "Senegal": "고레섬 · 아프리카 르네상스 기념비", "Madagascar": "바오바브 거리 · 여우원숭이", "New Zealand": "밀퍼드사운드 · 마오리 문화", "Fiji": "산호초 · 전통 카바 의식", "Papua New Guinea": "전통 싱싱 축제 · 열대우림"};
+function factFor(name){return countryFacts[name]||{};}
+function openReview(source='practice',onlyWrong=false){document.body.classList.remove('playing');reviewSource=source;if(source==='online'&&room?.questions?.length)reviewHistory=onlineReviewHistory();show('setup',false);show('lobby',false);show('game',false);show('practiceDone',false);show('practiceConfig',false);show('review',true);renderReview(onlyWrong)}
+function renderReview(onlyWrong=false, targetRoot=null){const all=reviewSource==='bookmarks'?[...bookmarkedCountries].map((target,i)=>({q:{target,options:[]},choice:lastAnswerFor(target),round:i})):reviewHistory;const wrong=all.filter(x=>x.choice!==x.q.target);if(!targetRoot)$('reviewSummary').textContent=`전체 ${all.length}문제 · 정답 ${all.length-wrong.length}개 · 오답 ${wrong.length}개`;const entries=onlyWrong===true?wrong:onlyWrong==='bookmarks'?all.filter(x=>hasBookmark(x.q.target)):all;const root=targetRoot||$('reviewCards');root.replaceChildren();if(!entries.length){root.textContent='복습할 문제가 없어요. 🎉';return}for(const entry of entries){const f=factFor(entry.q.target),r=targetRegion(entry.q.target),card=document.createElement('article');card.className='reviewCard';const title=document.createElement('h3');title.textContent=`${entry.round+1}번 · ${names[entry.q.target]||entry.q.target}`;card.append(title);const badge=document.createElement('p');badge.className='reviewTag';badge.textContent=entry.choice===entry.q.target?'✅ 정답':entry.choice?'❌ 오답':reviewSource==='bookmarks'?'📌 이전 응답 기록 없음':'⏳ 미응답';card.append(badge);const selected=document.createElement('p');selected.textContent='내가 고른 답: '+(entry.choice?(names[entry.choice]||entry.choice):(reviewSource==='bookmarks'?'저장된 응답 없음':'선택하지 않음'));card.append(selected);const region=document.createElement('p');region.textContent='🌍 지역: '+r;card.append(region);for(const [label,value] of [['🏛️ 수도',f.capital],['📍 위치',f.geo],['🎨 문화·종교',f.culture]]){if(value){const t=document.createElement('p');t.textContent=label+': '+value;card.append(t)}}const attraction=document.createElement('p');attraction.className='helper';attraction.textContent='🏞️ 대표 상징·여행지: '+(countryLandmarks[entry.q.target]||'국가별 명소는 아래 구글맵에서 탐색해 보세요.');card.append(attraction);
+function addMapToggle(label,country){
+ const btn=document.createElement('button');btn.type='button';btn.textContent=label;
+ btn.setAttribute('aria-expanded','false');card.append(btn);
+ const wrap=document.createElement('div');wrap.className='reviewMapContainer';wrap.hidden=true;card.append(wrap);
+ btn.onclick=()=>{
+  const opening=wrap.hidden;wrap.hidden=!opening;btn.setAttribute('aria-expanded',String(opening));
+  if(opening&&!wrap.firstChild){
+   const heading=document.createElement('p');heading.className='helper';heading.textContent=names[country]||country;wrap.append(heading);
+   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   svg.setAttribute('viewBox','0 0 900 480');svg.setAttribute('role','img');
+   svg.setAttribute('aria-label',(names[country]||country)+'의 위치를 회색으로 표시한 지도');
+   svg.classList.add('reviewMap');wrap.append(svg);draw(country,targetRegion(country),svg);
+  }
+ };
+}
+addMapToggle('🗺️ 지도에서 확인하기',entry.q.target);
+if(entry.choice&&entry.choice!==entry.q.target){
+ addMapToggle('📍 내가 고른 답 지도에서 확인하기',entry.choice);
+}
+function addGoogleMapsButton(label,country){
+ const button=document.createElement('button');button.type='button';button.textContent=label;
+ button.onclick=()=>window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(names[country]||country),'_blank','noopener,noreferrer');
+ card.append(button);
+}
+addGoogleMapsButton('🌐 정답 국가 구글맵으로 이동하기',entry.q.target);
+if(entry.choice&&entry.choice!==entry.q.target){
+ addGoogleMapsButton('🌐 내가 고른 답 구글맵으로 이동하기',entry.choice);
+}
+const keep=document.createElement('button');keep.type='button';keep.textContent=hasBookmark(entry.q.target)?'⭐ 북마크 해제':'☆ 북마크에 저장';keep.onclick=()=>{toggleBookmark(entry.q.target);keep.textContent=hasBookmark(entry.q.target)?'⭐ 북마크 해제':'☆ 북마크에 저장';if(reviewSource==='bookmarks')renderReview(false)};card.append(keep);root.append(card)}}
+$('openOnlineReview').onclick=()=>openReview('online');$('practiceReview').onclick=()=>openReview('practice');$('reviewAll').onclick=()=>renderReview(false);$('reviewWrong').onclick=()=>renderReview(true);$('reviewBookmarks').onclick=()=>renderReview('bookmarks');
+$('reviewBack').onclick=()=>{show('review',false);if(reviewSource==='bookmarks'){localHome();return}if(reviewSource==='practice')show('practiceDone',true);else{show('lobby',true);show('game',true);lastViewKey='';render()}};
+function openBookmarks(){reviewSource='bookmarks';show('setup',false);show('practiceConfig',false);show('practiceDone',false);show('game',false);show('lobby',false);show('review',true);renderReview(false)}
+$('bookmarksHome').onclick=openBookmarks;$('bookmarksDone').onclick=openBookmarks;
+$('bookmarkCount').textContent='('+bookmarkedCountries.size+')';
+$('retryWrong').onclick=()=>{const qs=reviewHistory.filter(x=>x.choice!==x.q.target).map(x=>x.q);if(!qs.length){alert('틀린 문제가 없어요!');return}practiceState={region:'전 세계',questions:qs,round:0,phase:'active',correctCount:0,chosen:'',locked:false,phaseAt:0};reviewHistory=[];mode='practice';show('review',false);show('lobby',false);show('practiceDone',false);show('game',true);renderPractice()};
+try{if(!firebaseConfig.apiKey||firebaseConfig.apiKey.includes('여기에'))throw Error('Firebase 설정값이 필요해요.');const app=initializeApp(firebaseConfig),auth=getAuth(app);db=getFirestore(app);await signInAnonymously(auth);uid=auth.currentUser.uid;startStats();notify('온라인 연결 완료! 닉네임을 입력한 뒤 방을 만들거나 숫자 4자리 코드로 입장하세요.');if(new URL(location.href).searchParams.has('room'))notify('초대 링크 확인 완료! 닉네임 입력 후 학생 입장을 눌러 주세요.')}catch(e){notify('온라인 연결 실패: '+e.message+' · 혼자 연습하기는 사용할 수 있어요.',true)}
+</script></body></html>
